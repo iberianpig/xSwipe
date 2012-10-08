@@ -91,12 +91,17 @@ while( my $line  = <INFILE>){
 	$axis="0";
 	$rate="0";
 	
-	
+	if($f==0){
+		`synclient TouchPadOff=0`;
+	}
 	if($f==3){
+		if( @xHist3 > 4 ){
+			`synclient TouchPadOff=1`;
+		}
 		cleanHist(4,5);
         push @xHist3, $x;
         push @yHist3, $y;
-        ### $axis before = got:$axis 
+        ### $axis before = got:$axis
         $axis=getAxis(\@xHist3,\@yHist3);
         ### $axis after = got:$axis
         if($axis eq "x"){
@@ -132,21 +137,20 @@ while( my $line  = <INFILE>){
 		}
 	}else{
 		#clean all history;
-		cleanHist(3,4,5)
-		
-		}
+		cleanHist(3,4,5);	
+	}
 
 	if ($axis ne "0" and $rate ne "0"){
 		swipe($f,$axis,$rate);
 		cleanHist($f);
-
 	}
 	
     # only process one event per time window
     if( $eventString ne "default" ){
-        if( abs(time - $eventTime) > 0.5 ){
+        if( abs(time - $eventTime) > 0.7 ){
             $eventTime = time;
             SendKeys( "$eventString");
+            `synclient TouchPadOff=0`;
         }#if enough time has passed
         $eventString = "default";
     }#if non default event
