@@ -1,0 +1,88 @@
+This script says how to use xSwipe.pl.
+
+This script make your linux PC able to recognize swipes like a macbook.
+
+Before running the script, you must first do some preparations.
+
+1.Install X11::GUITest
+2.Enable SHMConfig
+
+1.Install X11::GUITest
+To install libx11-guitest-perl from synaptic package manager
+Or run the script on the terminal run as sudo apt-get install libx11-guitest-perl
+
+2.Enable SHMConfig
+Open /etc/X11/xorg.conf.d/50-synaptics.conf with your favorite text editor and edit it
+to enable SHMConfig
+------------------------------------------------------------------------
+Section "InputDevice"
+# ....
+Option "SHMConfig" "on"
+....
+------------------------------------------------------------------------
+
+That's it for preparation.
+
+Next, you type "perl xSwipe.pl" on terminal and run.
+However, you should set "eventKey.cfg" into the same directory.
+
+You can use "swipe" with 3 or 4 fingers, and "swipe" can call an event
+
+Default is the setting for gnome-shell.
+
+
+3-fingers swipe
+・Left/Right=back/forward on browser
+・Up/Down＝Move workspaces
+4-fingers swipe
+・Left/Right/Up/Down=Super(WinKey)
+
+You can change the settings for swipe with eventKey.
+
+Please let me know if you have any questions about this program.
+
+-----Japanese-----------------------------------------------------------
+
+xSwipe.plの使い方を示しています.
+
+このスクリプトを使うことで、タッチパッドを備えたLinuxマシンは
+macbookのようにスワイプを使えるようになります。
+
+まず、スクリプトを動かす前に、いくつか準備があります。
+
+１．X11::GUITestのインストール
+２．SHMConfigの有効化
+
+１．X11::GUITestのインストール
+　libx11-guitest-perlをsynapticパッケージマネージャからインストール
+　もしくはTerminal上で実行　sudo apt-get install libx11-guitest-perl
+
+２．SHMConfigの有効化
+/etc/X11/xorg.conf.d/50-synaptics.conf をお好みのテキストエディタで編集し、
+SHMConfigを有効にする
+
+----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
+Section "InputDevice"
+# ....
+Option "SHMConfig" "on"
+....
+------------------------------------------------------------------------
+
+これで準備は終わりです。
+
+次に端末上で"perl xSwipe.pl"と入力して実行します。
+同じディレクトリ内にeventKey.cfgがなければ動作しません。
+
+3本指、4本指でスワイプすることで、様々なイベントが実行できます。
+
+現在デフォルトの設定はgnome-shell用になっています。
+
+3本指スワイプ
+・左右＝ブラウザの戻る/進む
+・上下＝ワークスペースの移動
+4本指スワイプ
+・上下左右＝Super（WinKey）
+
+適宜eventKey.cfgを修正して使ってください
+
+何か質問があればご連絡ください。

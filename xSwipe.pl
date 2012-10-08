@@ -7,20 +7,20 @@ use FindBin;
 #debug
 #use Smart::Comments;
 
-my @xHist3 = ();              # x coordinate history (3 fingers)
-my @yHist3 = ();              # y coordinate history (3 fingers)
-my @xHist4 = ();              # x coordinate history (4 fingers)
-my @yHist4 = ();              # y coordinate history (4 fingers)
-my @xHist5 = ();              # x coordinate history (5 fingers)
-my @yHist5 = ();              # y coordinate history (5 fingers)
+my @xHist3 = ();              	# x coordinate history (3 fingers)
+my @yHist3 = ();              	# y coordinate history (3 fingers)
+my @xHist4 = ();              	# x coordinate history (4 fingers)
+my @yHist4 = ();              	# y coordinate history (4 fingers)
+my @xHist5 = ();             	# x coordinate history (5 fingers)
+my @yHist5 = ();				# y coordinate history (5 fingers)
 
 
 my $axis="0";
 my $rate="0";
-my $lastTime = 0;             # time monitor for TouchPad event reset
-my $eventTime = 0;            # ensure enough time has passed between events
-my $eventString = "default";  # the event to execute
-my $synCmd = qq{synclient TapButton3=2 ClickFinger3=1 && synclient TouchpadOff=1 -m 10};
+my $lastTime = 0; 				# time monitor for TouchPad event reset
+my $eventTime = 0;			# ensure enough time has passed between events
+my $eventString = "default";	# the event to execute
+my $synCmd = qq{synclient TouchpadOff=1 -m 20};
 my $currWind = GetInputFocus();
 die "couldn't get input window" unless $currWind;
 open(INFILE," $synCmd |") or die "can't read from synclient";
@@ -155,7 +155,6 @@ while( my $line  = <INFILE>){
 
 close(INFILE);
 
-
 sub getRate{
 	my @hist=@_;
     my $rtn="0";
@@ -192,8 +191,6 @@ sub getAxis{
 	return $rtn;
 }
 
-
-
 sub cleanHist{
 	if($_[0]==3 or $_[1]==3 or $_[2]==3){
         @xHist3 = ();
@@ -206,7 +203,6 @@ sub cleanHist{
         @yHist5 = ();
 	}
 }
-
 
 #decide to send event
 sub swipe{
