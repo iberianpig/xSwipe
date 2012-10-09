@@ -1,10 +1,17 @@
 #!/usr/bin/perl
-
+################################################
+ #    #   ####   #    #     #    #####   ######
+  #  #   #       #    #     #    #    #  #
+   ##     ####   #    #     #    #    #  #####
+   ##         #  # ## #     #    #####   #
+  #  #   #    #  ##  ##     #    #       #
+ #    #   ####   #    #     #    #       ######
+################################################
 use strict;
 use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
-debug
+#debug
 #use Smart::Comments;
 
 my @xHist3 = ();              	# x coordinate history (3 fingers)
