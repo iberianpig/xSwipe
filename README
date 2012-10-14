@@ -1,4 +1,4 @@
-This script says how to use xSwipe.pl.
+This file says how to use xSwipe.pl.
 
 This script make your linux PC able to recognize swipes like a macbook.
 
@@ -74,9 +74,9 @@ macbookのようにスワイプを使えるようになります。
 　もしくはTerminal上で実行　sudo apt-get install libx11-guitest-perl
 
 ２．SHMConfigの有効化
-/etc/X11/xorg.conf.d/50-synaptics.conf をテキストエディタで編集し、
-SHMConfigを有効にする
-無ければ/etc/X11/xorg.conf.d/と50-synaptics.confを作成してください。
+/etc/X11/xorg.conf.d/50-synaptics.conf をテキストエディタで編集、
+SHMConfigを有効化
+(無ければ/etc/X11/xorg.conf.d/と50-synaptics.confを作成)
 
 ----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
 #setting for synaptics
