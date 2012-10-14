@@ -12,13 +12,38 @@ To install libx11-guitest-perl from synaptic package manager
 Or run the script on the terminal run as sudo apt-get install libx11-guitest-perl
 
 2.Enable SHMConfig
-Open /etc/X11/xorg.conf.d/50-synaptics.conf with your favorite text editor and edit it
-to enable SHMConfig
-------------------------------------------------------------------------
-Section "InputDevice"
-# ....
-Option "SHMConfig" "on"
-....
+Open /etc/X11/xorg.conf.d/50-synaptics.conf with your favorite text editor and edit it to enable SHMConfig
+You will need to create the /etc/X11/xorg.conf.d/ directory and create 50-synaptics.conf (if it doesn't exist yet)
+
+----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
+#setting for synaptics
+Section "InputClass"
+Identifier "evdev touchpad catchall"
+Driver "synaptics"
+MatchDevicePath "/dev/input/event*"
+MatchIsTouchpad "on"
+Option "Protocol" "event"
+Option "SHMConfig" "1"				# enable to "synclient -m"
+Option "FingerLow" "10"				# touchpad sensitivity
+Option "FingerHigh" "40"			# touchpad sensitivity
+Option "MinSpeed" "0.4"				# min speed
+Option "MaxSpeed" "2"				# Max speed
+Option "AccelFactor" "0.8"			# cursor acceleration
+Option "EmulateTwoFingerMinW" "8"	# two fingers min width
+Option "EmulateTwoFingerMinZ" "10"	# two fingers min pressure
+Option "HorizScrollDelta" "100"		# horizontal scroll threshold value
+Option "HorizTwoFingerScroll" "1"	# two fingers horizontal scroll
+Option "VertScrollDelta" "15"		# vertical scroll threshold value
+Option "VertTwoFingerScroll" "1"	# two fingers vertical scroll
+Option "TapButton1" "1"				# 1finger tap=1:left click
+Option "TapButton2" "3"				# 2fingers tap=3:right click
+Option "TapButton3" "2"				# 3fingers tap=2:middle click
+Option "PalmDetect" "1"				# palm tap detect
+Option "AreaRightEdge" "1020"		# touchpad right edge
+Option "AreaTopEdge" "40"			# touchpad top edge
+Option "FastTaps" "0"				# 
+Option "MaxTapTime" "100"			# set tap threshold maximum time 
+EndSection
 ------------------------------------------------------------------------
 
 That's it for preparation.
@@ -26,18 +51,9 @@ That's it for preparation.
 Next, you type "perl xSwipe.pl" on terminal and run.
 However, you should set "eventKey.cfg" into the same directory.
 
-You can use "swipe" with 3 or 4 fingers, and "swipe" can call an event
+You can use "swipe" with 3 or 4 fingers, and "swipe" can call an event.
 
-Default is the setting for gnome-shell.
-
-
-3-fingers swipe
-・Left/Right=back/forward on browser
-・Up/Down＝Move workspaces
-4-fingers swipe
-・Left/Right/Up/Down=Super(WinKey)
-
-You can change the settings for swipe with eventKey.
+You can change the settings for swipe with eventKey.cfg.
 
 Please let me know if you have any questions about this program.
 
@@ -62,10 +78,34 @@ macbookのようにスワイプを使えるようになります。
 SHMConfigを有効にする
 
 ----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
-Section "InputDevice"
-# ....
-Option "SHMConfig" "on"
-....
+#setting for synaptics
+Section "InputClass"
+Identifier "evdev touchpad catchall"
+Driver "synaptics"
+MatchDevicePath "/dev/input/event*"
+MatchIsTouchpad "on"
+Option "Protocol" "event"
+Option "SHMConfig" "1"				# synclient -mが使えるようにする
+Option "FingerLow" "10"				# タッチパッドの感度
+Option "FingerHigh" "40"			# タッチパッドの感度
+Option "MinSpeed" "0.4"				# 最小スピード
+Option "MaxSpeed" "2"				# 最大スピード
+Option "AccelFactor" "0.8"			# カーソルの加速度
+Option "EmulateTwoFingerMinW" "8"	# 2本指の最小指幅
+Option "EmulateTwoFingerMinZ" "10"	# 2本指の最小圧力
+Option "HorizScrollDelta" "100"		# 水平スクロールの閾値
+Option "HorizTwoFingerScroll" "1"	# 2本指で水平スクロール
+Option "VertScrollDelta" "15"		# 垂直スクロールの閾値
+Option "VertTwoFingerScroll" "1"	# 2本指で垂直スクロール
+Option "TapButton1" "1"				# 1本指でタップ=1:左クリック
+Option "TapButton2" "3"				# 2本指でタップ=3:右クリック
+Option "TapButton3" "2"				# 3本指でタップ=2:中クリック
+Option "PalmDetect" "1"				# 掌の誤検知をなくす
+Option "AreaRightEdge" "1020"		# 右側のクリック可能位置の制限
+Option "AreaTopEdge" "40"			# 上側のクリック可能位置の制限
+Option "FastTaps" "0"				# 
+Option "MaxTapTime" "100"			# タップとして認識する最大時間
+EndSection
 ------------------------------------------------------------------------
 
 これで準備は終わりです。
@@ -74,14 +114,6 @@ Option "SHMConfig" "on"
 同じディレクトリ内にeventKey.cfgがなければ動作しません。
 
 3本指、4本指でスワイプすることで、様々なイベントが実行できます。
-
-現在デフォルトの設定はgnome-shell用になっています。
-
-3本指スワイプ
-・左右＝ブラウザの戻る/進む
-・上下＝ワークスペースの移動
-4本指スワイプ
-・上下左右＝Super（WinKey）
 
 適宜eventKey.cfgを修正して使ってください
 
