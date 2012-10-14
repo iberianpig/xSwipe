@@ -39,7 +39,7 @@ Option "TapButton1" "1"				# 1finger tap=1:left click
 Option "TapButton2" "3"				# 2fingers tap=3:right click
 Option "TapButton3" "2"				# 3fingers tap=2:middle click
 Option "PalmDetect" "1"				# palm tap detect
-Option "AreaRightEdge" "1020"		# touchpad right edge
+Option "AreaRightEdge" "1020"	synclient SHMConfig=1	# touchpad right edge
 Option "AreaTopEdge" "40"			# touchpad top edge
 Option "FastTaps" "0"				# 
 Option "MaxTapTime" "100"			# set tap threshold maximum time 
@@ -74,8 +74,9 @@ macbookのようにスワイプを使えるようになります。
 　もしくはTerminal上で実行　sudo apt-get install libx11-guitest-perl
 
 ２．SHMConfigの有効化
-/etc/X11/xorg.conf.d/50-synaptics.conf をお好みのテキストエディタで編集し、
+/etc/X11/xorg.conf.d/50-synaptics.conf をテキストエディタで編集し、
 SHMConfigを有効にする
+無ければ/etc/X11/xorg.conf.d/と50-synaptics.confを作成してください。
 
 ----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
 #setting for synaptics
