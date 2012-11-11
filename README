@@ -39,7 +39,7 @@ Option "TapButton1" "1"				# 1finger tap=1:left click
 Option "TapButton2" "3"				# 2fingers tap=3:right click
 Option "TapButton3" "2"				# 3fingers tap=2:middle click
 Option "PalmDetect" "1"				# palm tap detect
-Option "AreaRightEdge" "1020"	synclient SHMConfig=1	# touchpad right edge
+Option "AreaRightEdge" "1020"	# touchpad right edge
 Option "AreaTopEdge" "40"			# touchpad top edge
 Option "FastTaps" "0"				# 
 Option "MaxTapTime" "100"			# set tap threshold maximum time 
