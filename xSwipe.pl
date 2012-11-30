@@ -19,21 +19,14 @@ use FindBin;
 #debug
 #use Smart::Comments;
 
-<<<<<<< HEAD
-my @xHist3 = ();              	# x coordinate history (3 fingers)
-my @yHist3 = ();              	# y coordinate history (3 fingers)
-my @xHist4 = ();              	# x coordinate history (4 fingers)
-my @yHist4 = ();              	# y coordinate history (4 fingers)
-my @xHist5 = ();              	# x coordinate history (5 fingers)
-my @yHist5 = ();              	# y coordinate history (5 fingers)
-=======
+
 my @xHist3 = ();                # x coordinate history (3 fingers)
 my @yHist3 = ();                # y coordinate history (3 fingers)
 my @xHist4 = ();                # x coordinate history (4 fingers)
 my @yHist4 = ();                # y coordinate history (4 fingers)
 my @xHist5 = ();                # x coordinate history (5 fingers)
 my @yHist5 = ();                # y coordinate history (5 fingers)
->>>>>>> master
+
 my $axis="0";
 my $rate="0";
 my $lastTime = 0;              # time monitor for TouchPad event reset
