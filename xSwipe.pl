@@ -17,7 +17,7 @@ use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-#use Smart::Comments;
+use Smart::Comments;
 
 
 my @xHist3 = ();                # x coordinate history (3 fingers)
@@ -31,7 +31,9 @@ my $axis="0";
 my $rate="0";
 my $lastTime = 0;              # time monitor for TouchPad event reset
 my $eventTime = 0;             # ensure enough time has passed between events
-my $eventString = "default";   # the event to execute
+my @eventString;   # the event to execute
+@eventString = ("default");   # the event to execute
+
 
 open (synclient_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
 my @synclient_setting = <synclient_setting>;
@@ -59,18 +61,18 @@ chomp($sessionName);
 if ($sessionName eq undef){$sessionName='other'};
 ### $command got:$command
 ### $sessionName got:$sessionName
-my $swipeRight3=$conf->{$sessionName}->{finger3}->{right};
-my $swipeLeft3=$conf->{$sessionName}->{finger3}->{left};
-my $swipeDown3=$conf->{$sessionName}->{finger3}->{down};
-my $swipeUp3=$conf->{$sessionName}->{finger3}->{up};
-my $swipeRight4=$conf->{$sessionName}->{finger4}->{right};
-my $swipeLeft4=$conf->{$sessionName}->{finger4}->{left};
-my $swipeDown4=$conf->{$sessionName}->{finger4}->{down};
-my $swipeUp4=$conf->{$sessionName}->{finger4}->{up};
-my $swipeRight5=$conf->{$sessionName}->{finger5}->{right};
-my $swipeLeft5=$conf->{$sessionName}->{finger5}->{left};
-my $swipeDown5=$conf->{$sessionName}->{finger5}->{down};
-my $swipeUp5=$conf->{$sessionName}->{finger5}->{up};
+my @swipeRight3=split "/", ($conf->{$sessionName}->{finger3}->{right});
+my @swipeLeft3=split "/", ($conf->{$sessionName}->{finger3}->{left});
+my @swipeDown3=split "/", ($conf->{$sessionName}->{finger3}->{down});
+my @swipeUp3=split "/", ($conf->{$sessionName}->{finger3}->{up});
+my @swipeRight4=split "/", ($conf->{$sessionName}->{finger4}->{right});
+my @swipeLeft4=split "/", ($conf->{$sessionName}->{finger4}->{left});
+my @swipeDown4=split "/", ($conf->{$sessionName}->{finger4}->{down});
+my @swipeUp4=split "/", ($conf->{$sessionName}->{finger4}->{up});
+my @swipeRight5=split "/", ($conf->{$sessionName}->{finger5}->{right});
+my @swipeLeft5=split "/", ($conf->{$sessionName}->{finger5}->{left});
+my @swipeDown5=split "/", ($conf->{$sessionName}->{finger5}->{down});
+my @swipeUp5=split "/", ($conf->{$sessionName}->{finger5}->{up});
 my $synCmd = qq{synclient TouchpadOff=1 -m 10};
 my $currWind = GetInputFocus();
 die "couldn't get input window" unless $currWind;
@@ -137,12 +139,14 @@ while( my $line  = <INFILE>){
   }
   
     # only process one event per time window
-    if( $eventString ne "default" ){
+    if( $eventString[0] ne "default" ){
         if( abs(time - $eventTime) > 0.1 ){
             $eventTime = time;
-            SendKeys( "$eventString");
+            ### OK!
+            PressKey $_ foreach(@eventString); 
+            ReleaseKey $_ foreach(reverse @eventString);
         }#if enough time has passed
-        $eventString = "default";
+        @eventString = ("default");
     }#if non default event
 }#synclient line in
 
@@ -172,6 +176,7 @@ sub getAxis{
 			if($xDist > $xSwipeDelta){
 				$rtn="x";
 			 ### xSwipe
+       ### got : @eventString;
 			}
     }else{
 				### $yDist got:$yDist
@@ -203,45 +208,45 @@ sub swipe{
   if($_[0]==3){
     if($_[1] eq "x"){
       if($_[2] eq"+"){
-        $eventString = $swipeRight3;
+        @eventString = @swipeRight3;
       }elsif($_[2] eq "-"){
-        $eventString = $swipeLeft3;
+        @eventString = @swipeLeft3;
       }
     }elsif($_[1] eq "y"){
       if($_[2] eq "+"){
-        $eventString = $swipeDown3;
+        @eventString = @swipeDown3;
       }elsif($_[2] eq "-"){
-        $eventString = $swipeUp3;
+        @eventString = @swipeUp3;
       }
     }
   }elsif($_[0]==4){
     if($_[1] eq "x"){
       if($_[2] eq "+"){
-        $eventString = $swipeRight4;
+        @eventString = @swipeRight4;
       }elsif($_[2] eq "-"){
-        $eventString = $swipeLeft4;
+        @eventString = @swipeLeft4;
       }
     }elsif($_[1] eq "y"){
       if($_[2] eq "+"){
-        $eventString = $swipeDown4;
+        @eventString = @swipeDown4;
       }elsif($_[2] eq "-"){
-        $eventString = $swipeUp4;
+        @eventString = @swipeUp4;
       }
     }
   }elsif($_[0]==5){
     if($_[1] eq "x"){
       if($_[2] eq "+"){
-        $eventString = $swipeRight5;
+        @eventString = @swipeRight5;
       }elsif($_[2] eq "-"){
-        $eventString = $swipeLeft5;
+        @eventString = @swipeLeft5;
       }
     }elsif($_[1] eq "y"){
       if($_[2] eq "+"){
-        $eventString = $swipeDown5;
+        @eventString = @swipeDown5;
       }elsif($_[2] eq "-"){
-        $eventString = $swipeUp5;
+        @eventString = @swipeUp5;
       }
     }
   }
-  return $eventString;
+  return @eventString;
 }

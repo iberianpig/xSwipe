@@ -1,11 +1,23 @@
+--Update
+2012/12/02 updated for multi-PressKey.
+
+--Usage
+
 This file says how to use xSwipe.pl.
 
 This script make your linux PC able to recognize swipes like a macbook.
 
 Before running the script, you must first do some preparations.
 
+0.Download xSwipe
 1.Install X11::GUITest
 2.Enable SHMConfig
+
+0.Download xSwipe
+Type below code, download xSwipe from github
+$ cd ~
+$ wget https://github.com/iberianpig/xSwipe/archive/master.zip
+$ unzip master.zip
 
 1.Install X11::GUITest
 To install libx11-guitest-perl from synaptic package manager
@@ -67,8 +79,15 @@ macbookのようにスワイプを使えるようになります。
 
 まず、スクリプトを動かす前に、いくつか準備があります。
 
+０．xSwipeのダウンロード
 １．X11::GUITestのインストール
 ２．SHMConfigの有効化
+
+０．xSwipeのダウンロード
+下記のコードを端末に打ち込み, githubよりダウンロード
+$ cd ~
+$ wget https://github.com/iberianpig/xSwipe/archive/master.zip
+$ unzip master.zip
 
 １．X11::GUITestのインストール
 　libx11-guitest-perlをsynapticパッケージマネージャからインストール
