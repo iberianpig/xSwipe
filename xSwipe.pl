@@ -25,7 +25,7 @@ my $rate="0";
 my $lastTime = 0;              # time monitor for TouchPad event reset
 my $eventTime = 0;             # ensure enough time has passed between events
 my @eventString;   # the event to execute
-$eventString[0] = "default";   # the event to execute
+@eventString = ("default");   # the event to execute
 
 
 open (synclient_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
@@ -139,7 +139,7 @@ while( my $line  = <INFILE>){
             PressKey $_ foreach(@eventString); 
             ReleaseKey $_ foreach(reverse @eventString);
         }#if enough time has passed
-        $eventString[0] = "default";
+        @eventString = ("default");
     }#if non default event
 }#synclient line in
 
