@@ -12,7 +12,7 @@ use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-use Smart::Comments;
+#use Smart::Comments;
 
 my @xHist3 = ();                # x coordinate history (3 fingers)
 my @yHist3 = ();                # y coordinate history (3 fingers)
