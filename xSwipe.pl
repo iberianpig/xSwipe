@@ -19,7 +19,6 @@ use FindBin;
 #debug
 use Smart::Comments;
 
-
 my @xHist3 = ();                # x coordinate history (3 fingers)
 my @yHist3 = ();                # y coordinate history (3 fingers)
 my @xHist4 = ();                # x coordinate history (4 fingers)
@@ -34,12 +33,16 @@ my $eventTime = 0;             # ensure enough time has passed between events
 my @eventString;   # the event to execute
 @eventString = ("default");   # the event to execute
 
-
 open (synclient_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
 my @synclient_setting = <synclient_setting>;
-my $TouchpadSizeH = abs((split "= ", $synclient_setting[0])[1]-(split "= ", $synclient_setting[1])[1]);
-my $TouchpadSizeW = abs((split "= ", $synclient_setting[2])[1]-(split "= ", $synclient_setting[3])[1]);
+my $LeftEdge=(split "= ", $synclient_setting[0])[1];
+my $RightEdge=(split "= ", $synclient_setting[1])[1];
+my $TopEdge=(split "= ", $synclient_setting[2])[1];
+my $BottomEdge=(split "= ", $synclient_setting[3])[1];
+my $TouchpadSizeH = abs($LeftEdge-$RightEdge);
+my $TouchpadSizeW = abs($TopEdge-$BottomEdge);
 close(fileHundle);
+
 my $xSwipeDelta = $TouchpadSizeH*0.2;
 my $ySwipeDelta = $TouchpadSizeW*0.2;
 ### $TouchpadSizeH got:$TouchpadSizeH
@@ -47,6 +50,12 @@ my $ySwipeDelta = $TouchpadSizeW*0.2;
 ### $xSwipeDelta got:$xSwipeDelta
 ### $ySwipeDelta got:$ySwipeDelta
 
+#edge
+my $edgeSwipeLeftEdge=$LeftEdge+$xSwipeDelta;
+my $edgeSwipeRightEdge=$RightEdge-$xSwipeDelta;
+### $edgeSwipeLeftEdge got:$edgeSwipeLeftEdge
+### $edgeSwipeRightEdge got:$edgeSwipeRightEdge
+#/edge
 
 #設定ファイル読込
 my $script_dir = $FindBin::Bin;#CurrentPath
@@ -81,19 +90,15 @@ open(INFILE," $synCmd |") or die "can't read from synclient";
 while( my $line  = <INFILE>){
 
   chomp($line);
-    my($time, $x, $y, $z, $f, $w) = split " ", $line;
-    next if( $time =~ /time/ ); #ignore header lines
+  my($time, $x, $y, $z, $f, $w) = split " ", $line;
+  next if( $time =~ /time/ ); #ignore header lines
 
-    if( $time - $lastTime > 0.15 ){
-        @xHist3 = ();
-        @yHist3 = ();
-        @xHist4 = ();
-        @yHist4 = ();
-        @xHist5 = ();
-        @yHist5 = ();
-    }#if time reset
+  if( $time - $lastTime > 0.15 ){
+    cleanHist(3,4,5);
+  ### time reset, xHist3~5 all clear
+  }#if time reset
 
-    $lastTime = $time;
+  $lastTime = $time;
   $axis="0";
   $rate="0";
   if($f==3){
@@ -110,9 +115,9 @@ while( my $line  = <INFILE>){
   }elsif($f==4){
     cleanHist(3,5);  
     push @xHist4, $x;
-        push @yHist4, $y;
-        $axis=getAxis(\@xHist4,\@yHist4);
-        if($axis eq "x"){
+    push @yHist4, $y;
+    $axis=getAxis(\@xHist4,\@yHist4);
+    if($axis eq "x"){
       $rate=getRate(@xHist4);
     }elsif($axis eq "y"){
       $rate=getRate(@yHist4);  
@@ -121,11 +126,10 @@ while( my $line  = <INFILE>){
   }elsif($f==5){
     cleanHist(3,4);
     push @xHist5, $x;
-        push @yHist5, $y;
-        $axis=getAxis(\@xHist5,\@yHist5);
-        if($axis eq "x"){
+    push @yHist5, $y;
+    $axis=getAxis(\@xHist5,\@yHist5);
+    if($axis eq "x"){
       $rate=getRate(@xHist5);
-      
     }elsif($axis eq "y"){
       $rate=getRate(@yHist5);
     }
@@ -138,68 +142,76 @@ while( my $line  = <INFILE>){
     cleanHist($f);
   }
   
-    # only process one event per time window
-    if( $eventString[0] ne "default" ){
-        if( abs(time - $eventTime) > 0.1 ){
-            $eventTime = time;
-            ### OK!
-            PressKey $_ foreach(@eventString); 
-            ReleaseKey $_ foreach(reverse @eventString);
-        }#if enough time has passed
-        @eventString = ("default");
-    }#if non default event
+  # only process one event per time window
+  if( $eventString[0] ne "default" ){
+    ### ne default
+    if( abs($time - $eventTime) > 0.1 ){
+      ### $time - $eventTime got: $time - $eventTime
+      $eventTime = $time;
+      PressKey $_ foreach(@eventString); 
+      ReleaseKey $_ foreach(reverse @eventString);
+    }#if enough time has passed
+    @eventString = ("default");
+  }#if non default event
 }#synclient line in
 
 close(INFILE);
 
 sub getRate{
-  my @hist=@_;
-    my $rtn="0";
-    my @srt = sort @hist;
-    my @revSrt = reverse sort @hist;
-    if( "@srt" eq "@hist" ){
-        $rtn = "+";
-    }elsif( "@revSrt" eq "@hist" ){ 
-        $rtn = "-";
-    }#if forward or backward
+  my @hist=();
+  my $rtn="0";
+  my @srt =();
+  my @revSrt =();  
+  @hist=@_;
+  @srt = sort @hist;
+  @revSrt = reverse sort @hist;
+  if( "@srt" eq "@hist" ){
+      $rtn = "+";
+  }elsif( "@revSrt" eq "@hist" ){ 
+      $rtn = "-";
+  }#if forward or backward
+
   return $rtn;
 }
 
 sub getAxis{
   my($xHist, $yHist)=@_;
   my $rtn ="0";
-  my $xDist = abs( @$xHist[0] - @$xHist[10] );
-  my $yDist = abs( @$yHist[0] - @$yHist[10] );
+  my $x0=@$xHist[0];
+  my $y0=@$yHist[0];
+  my $x10=@$xHist[10];
+  my $y10=@$yHist[10];
+  my $xDist = abs( $x0 - $x10 );
+  my $yDist = abs( $y0 - $y10 );
   if(@$xHist>10 or @$yHist>10){
     if( $xDist > $yDist){
-				### $xDist got:$xDist
-			if($xDist > $xSwipeDelta){
-				$rtn="x";
-			 ### xSwipe
-       ### got : @eventString;
-			}
+        ### $xDist got:$xDist
+      if($xDist > $xSwipeDelta){
+        $rtn="x";
+      }
     }else{
-				### $yDist got:$yDist
-			if($yDist > $ySwipeDelta){
-				
-				$rtn="y";
-				### ySwipe
-			}
+        ### $yDist got:$yDist
+      if($yDist > $ySwipeDelta){
+        $rtn="y";
+      }
     }
   }
+          ### getAxsis::$rtn got:$rtn
   return $rtn;
 }
 
-sub cleanHist{
+sub cleanHist{ 
   if($_[0]==3 or $_[1]==3 or $_[2]==3){
-        @xHist3 = ();
-        @yHist3 = ();
-  }elsif($_[0]==4 or $_[1]==4 or $_[2]==4){
-        @xHist4 = ();
-        @yHist4 = ();
-  }elsif($_[0]==5 or $_[1]==5 or $_[2]==5){
-        @xHist5 = ();
-        @yHist5 = ();
+    @xHist3 = ();
+    @yHist3 = ();
+  }
+  if($_[0]==4 or $_[1]==4 or $_[2]==4){
+    @xHist4 = ();
+    @yHist4 = ();
+  }
+  if($_[0]==5 or $_[1]==5 or $_[2]==5){
+    @xHist5 = ();
+    @yHist5 = ();
   }
 }
 
@@ -248,5 +260,6 @@ sub swipe{
       }
     }
   }
+  ### @eventString got:@eventString 
   return @eventString;
 }
