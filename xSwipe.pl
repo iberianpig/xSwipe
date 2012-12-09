@@ -39,14 +39,14 @@ my $LeftEdge=(split "= ", $synclient_setting[0])[1];
 my $RightEdge=(split "= ", $synclient_setting[1])[1];
 my $TopEdge=(split "= ", $synclient_setting[2])[1];
 my $BottomEdge=(split "= ", $synclient_setting[3])[1];
-my $TouchpadSizeH = abs($LeftEdge-$RightEdge);
-my $TouchpadSizeW = abs($TopEdge-$BottomEdge);
+my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
+my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
 close(fileHundle);
 
-my $xSwipeDelta = $TouchpadSizeH*0.2;
-my $ySwipeDelta = $TouchpadSizeW*0.2;
-### $TouchpadSizeH got:$TouchpadSizeH
-### $TouchpadSizeW got:$TouchpadSizeW
+my $xSwipeDelta = $TouchpadSizeW*0.2;
+my $ySwipeDelta = $TouchpadSizeH*0.2;
+### $TouchpadSizeH got:$TouchpadSizeW
+### $TouchpadSizeW got:$TouchpadSizeH
 ### $xSwipeDelta got:$xSwipeDelta
 ### $ySwipeDelta got:$ySwipeDelta
 
@@ -57,7 +57,7 @@ my $edgeSwipeRightEdge=$RightEdge-$xSwipeDelta;
 ### $edgeSwipeRightEdge got:$edgeSwipeRightEdge
 #/edge
 
-#設定ファイル読込
+#load config
 my $script_dir = $FindBin::Bin;#CurrentPath
 my $confFileName="eventKey.cfg";
 my $conf = require $script_dir."/".$confFileName;
@@ -97,7 +97,6 @@ while( my $line  = <INFILE>){
     cleanHist(3,4,5);
   ### time reset, xHist3~5 all clear
   }#if time reset
-
   $lastTime = $time;
   $axis="0";
   $rate="0";
