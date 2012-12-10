@@ -17,8 +17,14 @@ use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-use Smart::Comments;
+#use Smart::Comments;
 
+#edge
+my @xHist1 = ();                # x coordinate history (1 finger)
+my @yHist1 = ();                # y coordinate history (1 finger)
+my @xHist2 = ();                # x coordinate history (2 fingers)
+my @yHist2 = ();                # y coordinate history (2 fingers)
+#/edge
 my @xHist3 = ();                # x coordinate history (3 fingers)
 my @yHist3 = ();                # y coordinate history (3 fingers)
 my @xHist4 = ();                # x coordinate history (4 fingers)
@@ -43,8 +49,8 @@ my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
 close(fileHundle);
 
-my $xSwipeDelta = $TouchpadSizeW*0.2;
-my $ySwipeDelta = $TouchpadSizeH*0.2;
+my $xSwipeDelta = $TouchpadSizeW*0.15;
+my $ySwipeDelta = $TouchpadSizeH*0.15;
 ### $TouchpadSizeH got:$TouchpadSizeW
 ### $TouchpadSizeW got:$TouchpadSizeH
 ### $xSwipeDelta got:$xSwipeDelta
@@ -70,6 +76,7 @@ chomp($sessionName);
 if ($sessionName eq undef){$sessionName='other'};
 ### $command got:$command
 ### $sessionName got:$sessionName
+
 my @swipeRight3=split "/", ($conf->{$sessionName}->{finger3}->{right});
 my @swipeLeft3=split "/", ($conf->{$sessionName}->{finger3}->{left});
 my @swipeDown3=split "/", ($conf->{$sessionName}->{finger3}->{down});
@@ -82,6 +89,9 @@ my @swipeRight5=split "/", ($conf->{$sessionName}->{finger5}->{right});
 my @swipeLeft5=split "/", ($conf->{$sessionName}->{finger5}->{left});
 my @swipeDown5=split "/", ($conf->{$sessionName}->{finger5}->{down});
 my @swipeUp5=split "/", ($conf->{$sessionName}->{finger5}->{up});
+my @edgeSwipeRight=split "/", ($conf->{$sessionName}->{edgeSwipe}->{right});
+my @edgeSwipeLeft=split "/", ($conf->{$sessionName}->{edgeSwipe}->{left});
+
 my $synCmd = qq{synclient TouchpadOff=1 -m 10};
 my $currWind = GetInputFocus();
 die "couldn't get input window" unless $currWind;
@@ -93,18 +103,45 @@ while( my $line  = <INFILE>){
   my($time, $x, $y, $z, $f, $w) = split " ", $line;
   next if( $time =~ /time/ ); #ignore header lines
 
-  if( $time - $lastTime > 0.15 ){
-    cleanHist(3,4,5);
-  ### time reset, xHist3~5 all clear
+  if( $time - $lastTime > 0.1 ){
+    cleanHist(1,2,3,4,5);
+    ### time reset, xHist3~5 all clear
   }#if time reset
   $lastTime = $time;
   $axis="0";
   $rate="0";
-  if($f==3){
+
+  if($f==1){
+    cleanHist(2,3,4,5);
+    if ($x<$edgeSwipeLeftEdge){
+      ###edge1left
+      push @xHist1, $x;
+      push @yHist1, $y;
+    }elsif ($edgeSwipeRightEdge<$x){
+      ###edge1right
+      push @xHist1, $x;
+      push @yHist1, $y;
+    }
+  }elsif($f==2 and @xHist1>0){
+    ###edge2
+    cleanHist(3,4,5);
+    push @xHist2, $x;
+    push @yHist2, $y;
+  }elsif($f==3 and @xHist2>0){
     cleanHist(4,5);
         push @xHist3, $x;
         push @yHist3, $y;
-        $axis=getAxis(\@xHist3,\@yHist3);
+        $axis=getAxis(\@xHist3,\@yHist3,2,0.5);
+        if($axis eq "x"){
+      $rate=getRate(@xHist3);
+    }elsif($axis eq "y"){
+      $rate=getRate(@yHist3);  
+    }
+  }elsif($f==3){
+    cleanHist(4,5);
+        push @xHist3, $x;
+        push @yHist3, $y;
+        $axis=getAxis(\@xHist3,\@yHist3,10,1);
         if($axis eq "x"){
       $rate=getRate(@xHist3);
     }elsif($axis eq "y"){
@@ -115,7 +152,7 @@ while( my $line  = <INFILE>){
     cleanHist(3,5);  
     push @xHist4, $x;
     push @yHist4, $y;
-    $axis=getAxis(\@xHist4,\@yHist4);
+    $axis=getAxis(\@xHist4,\@yHist4,10,1);
     if($axis eq "x"){
       $rate=getRate(@xHist4);
     }elsif($axis eq "y"){
@@ -126,29 +163,33 @@ while( my $line  = <INFILE>){
     cleanHist(3,4);
     push @xHist5, $x;
     push @yHist5, $y;
-    $axis=getAxis(\@xHist5,\@yHist5);
+    $axis=getAxis(\@xHist5,\@yHist5,10,1);
     if($axis eq "x"){
       $rate=getRate(@xHist5);
     }elsif($axis eq "y"){
       $rate=getRate(@yHist5);
     }
   }else{
-    cleanHist(3,4,5);  
+    cleanHist(1,2,3,4,5);  
   }
 
   if ($axis ne "0" and $rate ne "0"){
     swipe($f,$axis,$rate);
-    cleanHist($f);
+    cleanHist(1,2,3,4,5);
   }
   
   # only process one event per time window
   if( $eventString[0] ne "default" ){
     ### ne default
-    if( abs($time - $eventTime) > 0.1 ){
+
+    
+    ###/edgetest got:@eventString
+    if( abs($time - $eventTime) > 0.3 ){
       ### $time - $eventTime got: $time - $eventTime
       $eventTime = $time;
       PressKey $_ foreach(@eventString); 
       ReleaseKey $_ foreach(reverse @eventString);
+      ### @eventString got:@eventString 
     }#if enough time has passed
     @eventString = ("default");
   }#if non default event
@@ -169,48 +210,53 @@ sub getRate{
   }elsif( "@revSrt" eq "@hist" ){ 
       $rtn = "-";
   }#if forward or backward
-
   return $rtn;
 }
 
 sub getAxis{
-  my($xHist, $yHist)=@_;
+  my($xHist, $yHist, $max, $deltaRate)=@_;
   my $rtn ="0";
   my $x0=@$xHist[0];
   my $y0=@$yHist[0];
-  my $x10=@$xHist[10];
-  my $y10=@$yHist[10];
-  my $xDist = abs( $x0 - $x10 );
-  my $yDist = abs( $y0 - $y10 );
-  if(@$xHist>10 or @$yHist>10){
+  my $xmax=@$xHist[$max];
+  my $ymax=@$yHist[$max];
+  my $xDist = abs( $x0 - $xmax );
+  my $yDist = abs( $y0 - $ymax );
+  if(@$xHist>$max or @$yHist>$max){
     if( $xDist > $yDist){
         ### $xDist got:$xDist
-      if($xDist > $xSwipeDelta){
+      if($xDist > $xSwipeDelta*$deltaRate){
         $rtn="x";
       }
     }else{
         ### $yDist got:$yDist
-      if($yDist > $ySwipeDelta){
+      if($yDist > $ySwipeDelta*$deltaRate){
         $rtn="y";
       }
     }
   }
-          ### getAxsis::$rtn got:$rtn
+        ### getAxsis::$rtn got:$rtn
   return $rtn;
 }
 
 sub cleanHist{ 
-  if($_[0]==3 or $_[1]==3 or $_[2]==3){
-    @xHist3 = ();
-    @yHist3 = ();
-  }
-  if($_[0]==4 or $_[1]==4 or $_[2]==4){
-    @xHist4 = ();
-    @yHist4 = ();
-  }
-  if($_[0]==5 or $_[1]==5 or $_[2]==5){
-    @xHist5 = ();
-    @yHist5 = ();
+  while(my $arg = shift){
+    if($arg==1){
+      @xHist1 = ();
+      @yHist1 = ();
+    }elsif($arg==2){
+      @xHist2 = ();
+      @yHist2 = ();
+    }elsif($arg==3){
+      @xHist3 = ();
+      @yHist3 = ();
+    }elsif($arg==4){
+      @xHist4 = ();
+      @yHist4 = ();
+    }elsif($arg==5){
+      @xHist5 = ();
+      @yHist5 = ();
+    }
   }
 }
 
@@ -259,6 +305,15 @@ sub swipe{
       }
     }
   }
-  ### @eventString got:@eventString 
+  if(@xHist1>0 and @xHist2>0){
+    ###edgeSwipe
+    if("@eventString" eq "@swipeRight3"){
+      @eventString=@edgeSwipeRight;
+      ### right
+    }elsif("@eventString" eq "@swipeLeft3"){
+      @eventString=@edgeSwipeLeft;
+      ### left
+    }
+  }
   return @eventString;
 }
