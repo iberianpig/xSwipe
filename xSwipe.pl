@@ -13,7 +13,7 @@ use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-#use Smart::Comments;
+use Smart::Comments;
 
 #edge
 my @xHist1 = ();                # x coordinate history (1 finger)
@@ -45,8 +45,8 @@ my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
 close(fileHundle);
 
-my $xSwipeDelta = $TouchpadSizeW*0.1;
-my $ySwipeDelta = $TouchpadSizeH*0.1;
+my $xSwipeDelta = $TouchpadSizeW*0.2;
+my $ySwipeDelta = $TouchpadSizeH*0.2;
 ### $TouchpadSizeW got:$TouchpadSizeW
 ### $TouchpadSizeH got:$TouchpadSizeH
 ### $xSwipeDelta got:$xSwipeDelta
@@ -123,16 +123,22 @@ while( my $line  = <INFILE>){
     cleanHist(3,4,5);
     push @xHist2, $x;
     push @yHist2, $y;
-  }elsif($f==3 and @xHist2>0){
-    cleanHist(4,5);
-        push @xHist3, $x;
-        push @yHist3, $y;
-        $axis=getAxis(\@xHist3,\@yHist3,2,0.5);
-        if($axis eq "x"){
-      $rate=getRate(@xHist3);
+    $axis=getAxis(\@xHist2,\@yHist2,3,0.3);
+    if($axis eq "x"){
+      $rate=getRate(@xHist2);
     }elsif($axis eq "y"){
-      $rate=getRate(@yHist3);  
+      $rate=getRate(@yHist2);  
     }
+  #~ }elsif($f==3 and @xHist2>0){
+    #~ cleanHist(4,5);
+        #~ push @xHist3, $x;
+        #~ push @yHist3, $y;
+        #~ $axis=getAxis(\@xHist3,\@yHist3,5,0.5);
+        #~ if($axis eq "x"){
+      #~ $rate=getRate(@xHist3);
+    #~ }elsif($axis eq "y"){
+      #~ $rate=getRate(@yHist3);  
+    #~ }
   }elsif($f==3){
     cleanHist(4,5);
         push @xHist3, $x;
@@ -154,7 +160,6 @@ while( my $line  = <INFILE>){
     }elsif($axis eq "y"){
       $rate=getRate(@yHist4);  
     }
-    
   }elsif($f==5){
     cleanHist(3,4);
     push @xHist5, $x;
@@ -203,8 +208,8 @@ sub getRate{
   }elsif( "@revSrt" eq "@hist" ){ 
       $rtn = "-";
   }#if forward or backward
-  ### @hist got: @hist
-  ### @srt got: @srt
+  ## @hist got: @hist
+  ## @srt got: @srt
   return $rtn;
 }
 
@@ -257,7 +262,15 @@ sub cleanHist{
 
 #decide to send event
 sub swipe{
-  if($_[0]==3){
+  if($_[0]==2){
+    if($_[1] eq "x"){
+      if($_[2] eq"+"){
+        @eventString = @edgeSwipeRight;
+      }elsif($_[2] eq "-"){
+        @eventString = @edgeSwipeLeft;
+      }
+    }
+  }elsif($_[0]==3){
     if($_[1] eq "x"){
       if($_[2] eq"+"){
         @eventString = @swipeRight3;
@@ -300,15 +313,6 @@ sub swipe{
       }
     }
   }
-  if(@xHist1>0 and @xHist2>0){
-    ###edgeSwipe
-    if("@eventString" eq "@swipeRight3"){
-      @eventString=@edgeSwipeRight;
-      ### right
-    }elsif("@eventString" eq "@swipeLeft3"){
-      @eventString=@edgeSwipeLeft;
-      ### left
-    }
-  }
+
   return @eventString;
 }
