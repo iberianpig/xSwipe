@@ -181,9 +181,6 @@ while( my $line  = <INFILE>){
   # only process one event per time window
   if( $eventString[0] ne "default" ){
     ### ne default
-
-    
-    ###/edgetest got:@eventString
     if( abs($time - $eventTime) > 0.3 ){
       ### $time - $eventTime got: $time - $eventTime
       $eventTime = $time;
@@ -235,7 +232,7 @@ sub getAxis{
       }
     }
   }
-        ### getAxsis::$rtn got:$rtn
+  ### getAxsis::$rtn got:$rtn
   return $rtn;
 }
 
