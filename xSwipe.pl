@@ -8,10 +8,6 @@
  #    #   ####   #    #     #    #       ######
 ################################################
 
-###################################
-#this file is on a branch,"edgeIn"#
-###################################
-
 use strict;
 use Time::HiRes();
 use X11::GUITest qw( :ALL );
@@ -49,10 +45,10 @@ my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
 close(fileHundle);
 
-my $xSwipeDelta = $TouchpadSizeW*0.15;
-my $ySwipeDelta = $TouchpadSizeH*0.15;
-### $TouchpadSizeH got:$TouchpadSizeW
-### $TouchpadSizeW got:$TouchpadSizeH
+my $xSwipeDelta = $TouchpadSizeW*0.1;
+my $ySwipeDelta = $TouchpadSizeH*0.1;
+### $TouchpadSizeW got:$TouchpadSizeW
+### $TouchpadSizeH got:$TouchpadSizeH
 ### $xSwipeDelta got:$xSwipeDelta
 ### $ySwipeDelta got:$ySwipeDelta
 
@@ -200,13 +196,15 @@ sub getRate{
   my @srt =();
   my @revSrt =();  
   @hist=@_;
-  @srt = sort @hist;
-  @revSrt = reverse sort @hist;
+  my @srt = sort {$a <=> $b} @hist;
+  my @revSrt = sort {$b <=> $a} @hist;
   if( "@srt" eq "@hist" ){
       $rtn = "+";
   }elsif( "@revSrt" eq "@hist" ){ 
       $rtn = "-";
   }#if forward or backward
+  ### @hist got: @hist
+  ### @srt got: @srt
   return $rtn;
 }
 
