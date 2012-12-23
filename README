@@ -1,13 +1,16 @@
 --Update
+2012/12/23 - updated for option, -n and -d.
+            -> -d RATE
+              : RATE sensitivity to swipe
+                RATE > 0, default value is 1.
+            -> -n
+              : use natural scroll
 2012/12/10 - updated for edge-swipe.
-             ->You can swipe with 2finger from outside edge,
-               then your browser's tab is opened/closed. 
-               
+             ->avilable edge-swipe with 2finger from outside edge                            
            - fixed missing swipe bug.
 2012/12/02 - updated for multi-PressKey.
 
 --Usage
-
 This file says how to use xSwipe.pl.
 
 This script make your linux PC able to recognize swipes like a macbook.
@@ -20,9 +23,9 @@ Before running the script, you must first do some preparations.
 
 0.Download xSwipe
 Type below code, download xSwipe from github
-$ cd ~
-$ wget https://github.com/iberianpig/xSwipe/archive/master.zip
-$ unzip master.zip
+    $ cd ~
+    $ wget https://github.com/iberianpig/xSwipe/archive/master.zip
+    $ unzip master.zip
 
 1.Install X11::GUITest
 To install libx11-guitest-perl from synaptic package manager
@@ -65,8 +68,11 @@ EndSection
 
 That's it for preparation.
 
-Next, you type "perl xSwipe.pl" on terminal and run.
-However, you should set "eventKey.cfg" into the same directory.
+To run xSwipe, type below code on terminal.
+
+   $ perl ~/xSwipe-master/xSwipe.pl
+
+Note:you should set "eventKey.cfg" into the same directory.
 
 You can use "swipe" with 3 or 4 fingers, and "swipe" can call an event.
 
@@ -74,74 +80,3 @@ You can customize the settings for swipe with eventKey.cfg.
 #Please check here<https://github.com/iberianpig/xSwipe/wiki/Customize-eventKey.cfg>
 
 Please let me know if you have any questions about this program.
-
------Japanese-----------------------------------------------------------
-
-xSwipe.plの使い方を示しています.
-
-このスクリプトを使うことで、タッチパッドを備えたLinuxマシンは
-macbookのようにスワイプを使えるようになります。
-
-まず、スクリプトを動かす前に、いくつか準備があります。
-
-０．xSwipeのダウンロード
-１．X11::GUITestのインストール
-２．SHMConfigの有効化
-
-０．xSwipeのダウンロード
-下記のコードを端末に打ち込み, githubよりダウンロード
-$ cd ~
-$ wget https://github.com/iberianpig/xSwipe/archive/master.zip
-$ unzip master.zip
-
-１．X11::GUITestのインストール
-　libx11-guitest-perlをsynapticパッケージマネージャからインストール
-　もしくはTerminal上で実行　sudo apt-get install libx11-guitest-perl
-
-２．SHMConfigの有効化
-/etc/X11/xorg.conf.d/50-synaptics.conf をテキストエディタで編集、
-SHMConfigを有効化
-(無ければ/etc/X11/xorg.conf.d/と50-synaptics.confを作成)
-
-----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
-#setting for synaptics
-Section "InputClass"
-Identifier "evdev touchpad catchall"
-Driver "synaptics"
-MatchDevicePath "/dev/input/event*"
-MatchIsTouchpad "on"
-Option "Protocol" "event"
-Option "SHMConfig" "1"                # synclient -mが使えるようにする
-Option "FingerLow" "10"               # タッチパッドの感度
-Option "FingerHigh" "40"              # タッチパッドの感度
-Option "MinSpeed" "0.4"               # 最小スピード
-Option "MaxSpeed" "2"                 # 最大スピード
-Option "AccelFactor" "0.8"            # カーソルの加速度
-Option "EmulateTwoFingerMinW" "8"     # 2本指の最小指幅
-Option "EmulateTwoFingerMinZ" "10"    # 2本指の最小圧力
-Option "HorizScrollDelta" "100"       # 水平スクロールの閾値
-Option "HorizTwoFingerScroll" "1"     # 2本指で水平スクロール
-Option "VertScrollDelta" "15"         # 垂直スクロールの閾値
-Option "VertTwoFingerScroll" "1"      # 2本指で垂直スクロール
-Option "TapButton1" "1"               # 1本指でタップ=1:左クリック
-Option "TapButton2" "3"               # 2本指でタップ=3:右クリック
-Option "TapButton3" "2"               # 3本指でタップ=2:中クリック
-Option "PalmDetect" "1"               # 掌の誤検知をなくす
-Option "AreaRightEdge" "1020"         # 右側のクリック可能位置の制限
-Option "AreaTopEdge" "40"             # 上側のクリック可能位置の制限
-Option "FastTaps" "0"                 # 
-Option "MaxTapTime" "100"             # タップとして認識する最大時間
-EndSection
-------------------------------------------------------------------------
-
-これで準備は終わりです。
-
-次に端末上で"perl xSwipe.pl"と入力して実行します。
-同じディレクトリ内にeventKey.cfgがなければ動作しません。
-
-3本指、4本指でスワイプすることで、様々なイベントが実行できます。
-
-eventKey.cfgでショートカットキーをカスタマイズできます。
-#次のページを参照して下さい<https://github.com/iberianpig/xSwipe/wiki/Customize-eventKey.cfg>
-
-何か質問があればご連絡ください。

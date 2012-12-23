@@ -15,12 +15,11 @@ use FindBin;
 #debug
 #use Smart::Comments;
 
-#edge
+
 my @xHist1 = ();                # x coordinate history (1 finger)
 my @yHist1 = ();                # y coordinate history (1 finger)
 my @xHist2 = ();                # x coordinate history (2 fingers)
 my @yHist2 = ();                # y coordinate history (2 fingers)
-#/edge
 my @xHist3 = ();                # x coordinate history (3 fingers)
 my @yHist3 = ();                # y coordinate history (3 fingers)
 my @xHist4 = ();                # x coordinate history (4 fingers)
@@ -28,40 +27,69 @@ my @yHist4 = ();                # y coordinate history (4 fingers)
 my @xHist5 = ();                # x coordinate history (5 fingers)
 my @yHist5 = ();                # y coordinate history (5 fingers)
 
-my $axis="0";
-my $rate="0";
+my $BaseDist=1;
+my $axis=0;
+my $rate=0;
 my $lastTime = 0;              # time monitor for TouchPad event reset
 my $eventTime = 0;             # ensure enough time has passed between events
-my @eventString;   # the event to execute
-@eventString = ("default");   # the event to execute
+my @eventString= ("default");   # the event to execute
+my $confFileName="eventKey.cfg";
 
 open (synclient_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
 my @synclient_setting = <synclient_setting>;
+close(fileHundle);
 my $LeftEdge=(split "= ", $synclient_setting[0])[1];
 my $RightEdge=(split "= ", $synclient_setting[1])[1];
 my $TopEdge=(split "= ", $synclient_setting[2])[1];
 my $BottomEdge=(split "= ", $synclient_setting[3])[1];
 my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
-close(fileHundle);
 
-my $xSwipeDelta = $TouchpadSizeW*0.2;
-my $ySwipeDelta = $TouchpadSizeH*0.2;
+
+while(my $ARGV = shift){
+      ### $ARGV got:$ARGV
+  if ($ARGV eq '-n'){
+    $confFileName="nScroll/eventKey.cfg";
+  }elsif ($ARGV eq '-d'){
+    if ($ARGV[0]>0){
+      $BaseDist=$ARGV[0];
+      shift;
+    }else{
+      print "Set a value greater than 0\n";
+      exit(1);
+    } 
+  }else{
+    print "
+    Available Options
+      -d RATE
+        RATE sensitivity to swipe
+        RATE > 0, default value is 1.
+      -n 
+        Natural Scrolling, like a macbook
+        setting file path=nScroll/eventKey.cfg
+    \n";
+    exit(1);
+  }
+}
+
+
+
+my $xSwipeDist = $TouchpadSizeW*$BaseDist*0.1;
+my $ySwipeDist = $TouchpadSizeH*$BaseDist*0.1;
 ### $TouchpadSizeW got:$TouchpadSizeW
 ### $TouchpadSizeH got:$TouchpadSizeH
-### $xSwipeDelta got:$xSwipeDelta
-### $ySwipeDelta got:$ySwipeDelta
+### $xSwipeDist got:$xSwipeDist
+### $ySwipeDist got:$ySwipeDist
 
 #edge
-my $edgeSwipeLeftEdge=$LeftEdge+$xSwipeDelta;
-my $edgeSwipeRightEdge=$RightEdge-$xSwipeDelta;
+my $edgeSwipeLeftEdge=$LeftEdge+$xSwipeDist;
+my $edgeSwipeRightEdge=$RightEdge-$xSwipeDist;
 ### $edgeSwipeLeftEdge got:$edgeSwipeLeftEdge
 ### $edgeSwipeRightEdge got:$edgeSwipeRightEdge
 #/edge
 
 #load config
 my $script_dir = $FindBin::Bin;#CurrentPath
-my $confFileName="eventKey.cfg";
 my $conf = require $script_dir."/".$confFileName;
 my $command = qq{pgrep -lf ^gnome-session};
 open (fileHundle, " $command |")or die "can't pgrep -lf ^gnome-session";
@@ -104,8 +132,8 @@ while( my $line  = <INFILE>){
     ### time reset, xHist3~5 all clear
   }#if time reset
   $lastTime = $time;
-  $axis="0";
-  $rate="0";
+  $axis=0;
+  $rate=0;
 
   if($f==1){
     cleanHist(2,3,4,5);
@@ -129,16 +157,6 @@ while( my $line  = <INFILE>){
     }elsif($axis eq "y"){
       $rate=getRate(@yHist2);  
     }
-  #~ }elsif($f==3 and @xHist2>0){
-    #~ cleanHist(4,5);
-        #~ push @xHist3, $x;
-        #~ push @yHist3, $y;
-        #~ $axis=getAxis(\@xHist3,\@yHist3,5,0.5);
-        #~ if($axis eq "x"){
-      #~ $rate=getRate(@xHist3);
-    #~ }elsif($axis eq "y"){
-      #~ $rate=getRate(@yHist3);  
-    #~ }
   }elsif($f==3){
     cleanHist(4,5);
         push @xHist3, $x;
@@ -174,7 +192,7 @@ while( my $line  = <INFILE>){
     cleanHist(1,2,3,4,5);  
   }
 
-  if ($axis ne "0" and $rate ne "0"){
+  if ($axis ne 0 and $rate ne 0){
     swipe($f,$axis,$rate);
     cleanHist(1,2,3,4,5);
   }
@@ -197,7 +215,7 @@ close(INFILE);
 
 sub getRate{
   my @hist=();
-  my $rtn="0";
+  my $rtn=0;
   my @srt =();
   my @revSrt =();  
   @hist=@_;
@@ -214,8 +232,8 @@ sub getRate{
 }
 
 sub getAxis{
-  my($xHist, $yHist, $max, $deltaRate)=@_;
-  my $rtn ="0";
+  my($xHist, $yHist, $max, $DistRate)=@_;
+  my $rtn =0;
   my $x0=@$xHist[0];
   my $y0=@$yHist[0];
   my $xmax=@$xHist[$max];
@@ -225,12 +243,12 @@ sub getAxis{
   if(@$xHist>$max or @$yHist>$max){
     if( $xDist > $yDist){
         ### $xDist got:$xDist
-      if($xDist > $xSwipeDelta*$deltaRate){
+      if($xDist > $xSwipeDist*$DistRate){
         $rtn="x";
       }
     }else{
         ### $yDist got:$yDist
-      if($yDist > $ySwipeDelta*$deltaRate){
+      if($yDist > $ySwipeDist*$DistRate){
         $rtn="y";
       }
     }
