@@ -122,7 +122,6 @@ die "couldn't get input window" unless $currWind;
 open(INFILE," $synCmd |") or die "can't read from synclient";
 
 while( my $line  = <INFILE>){
-
   chomp($line);
   my($time, $x, $y, $z, $f, $w) = split " ", $line;
   next if( $time =~ /time/ ); #ignore header lines
