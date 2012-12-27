@@ -1,4 +1,5 @@
 --Update
+2012/12/27 - merged 2-finger NaturalScroll function.
 2012/12/23 - updated for option, -n and -d.
             -> -d RATE
               : RATE sensitivity to swipe
@@ -70,7 +71,7 @@ That's it for preparation.
 
 To run xSwipe, type below code on terminal.
 
-   $ perl ~/xSwipe-master/xSwipe.pl
+    $ perl ~/xSwipe-master/xSwipe.pl
 
 Note:you should set "eventKey.cfg" into the same directory.
 
