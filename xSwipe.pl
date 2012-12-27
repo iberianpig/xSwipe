@@ -15,41 +15,15 @@ use FindBin;
 #debug
 #use Smart::Comments;
 
-
-my @xHist1 = ();                # x coordinate history (1 finger)
-my @yHist1 = ();                # y coordinate history (1 finger)
-my @xHist2 = ();                # x coordinate history (2 fingers)
-my @yHist2 = ();                # y coordinate history (2 fingers)
-my @xHist3 = ();                # x coordinate history (3 fingers)
-my @yHist3 = ();                # y coordinate history (3 fingers)
-my @xHist4 = ();                # x coordinate history (4 fingers)
-my @yHist4 = ();                # y coordinate history (4 fingers)
-my @xHist5 = ();                # x coordinate history (5 fingers)
-my @yHist5 = ();                # y coordinate history (5 fingers)
-
+my $naturalScroll=0;
 my $BaseDist=1;
-my $axis=0;
-my $rate=0;
-my $lastTime = 0;              # time monitor for TouchPad event reset
-my $eventTime = 0;             # ensure enough time has passed between events
-my @eventString= ("default");   # the event to execute
 my $confFileName="eventKey.cfg";
-
-open (synclient_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
-my @synclient_setting = <synclient_setting>;
-close(fileHundle);
-my $LeftEdge=(split "= ", $synclient_setting[0])[1];
-my $RightEdge=(split "= ", $synclient_setting[1])[1];
-my $TopEdge=(split "= ", $synclient_setting[2])[1];
-my $BottomEdge=(split "= ", $synclient_setting[3])[1];
-my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
-my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
-
+my $NscrollConfFileName="nScroll/eventKey.cfg";
 
 while(my $ARGV = shift){
-      ### $ARGV got:$ARGV
+  ### $ARGV got:$ARGV
   if ($ARGV eq '-n'){
-    $confFileName="nScroll/eventKey.cfg";
+    $naturalScroll=1; 
   }elsif ($ARGV eq '-d'){
     if ($ARGV[0]>0){
       $BaseDist=$ARGV[0];
@@ -72,21 +46,40 @@ while(my $ARGV = shift){
   }
 }
 
+open (Scroll_setting, "synclient -l | grep ScrollDelta | grep -v -e Circ | ")or die "can't synclient -l";
+my @Scroll_setting = <Scroll_setting>;
+close(fileHundle);
+my $VertScrollDelta=abs((split "= ", $Scroll_setting[0])[1]);
+my $HorizScrollDelta=abs((split "= ", $Scroll_setting[1])[1]);
 
+if($naturalScroll==1){
+  $confFileName=$NscrollConfFileName;
+  `synclient VertScrollDelta=-$VertScrollDelta HorizScrollDelta=-$HorizScrollDelta ClickFinger3=1`;
+}else{
+  `synclient VertScrollDelta=$VertScrollDelta HorizScrollDelta=$HorizScrollDelta ClickFinger3=1`;
+  }
 
+open (area_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
+my @area_setting = <area_setting>;
+close(fileHundle);
+my $LeftEdge=(split "= ", $area_setting[0])[1];
+my $RightEdge=(split "= ", $area_setting[1])[1];
+my $TopEdge=(split "= ", $area_setting[2])[1];
+my $BottomEdge=(split "= ", $area_setting[3])[1];
+my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
+my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
 my $xSwipeDist = $TouchpadSizeW*$BaseDist*0.1;
 my $ySwipeDist = $TouchpadSizeH*$BaseDist*0.1;
-### $TouchpadSizeW got:$TouchpadSizeW
-### $TouchpadSizeH got:$TouchpadSizeH
+### @area_setting
+### $TouchpadSizeH
+### $TouchpadSizeW
 ### $xSwipeDist got:$xSwipeDist
 ### $ySwipeDist got:$ySwipeDist
 
-#edge
 my $edgeSwipeLeftEdge=$LeftEdge+$xSwipeDist;
 my $edgeSwipeRightEdge=$RightEdge-$xSwipeDist;
 ### $edgeSwipeLeftEdge got:$edgeSwipeLeftEdge
 ### $edgeSwipeRightEdge got:$edgeSwipeRightEdge
-#/edge
 
 #load config
 my $script_dir = $FindBin::Bin;#CurrentPath
@@ -115,6 +108,22 @@ my @swipeDown5=split "/", ($conf->{$sessionName}->{finger5}->{down});
 my @swipeUp5=split "/", ($conf->{$sessionName}->{finger5}->{up});
 my @edgeSwipeRight=split "/", ($conf->{$sessionName}->{edgeSwipe}->{right});
 my @edgeSwipeLeft=split "/", ($conf->{$sessionName}->{edgeSwipe}->{left});
+
+my @xHist1 = ();                # x coordinate history (1 finger)
+my @yHist1 = ();                # y coordinate history (1 finger)
+my @xHist2 = ();                # x coordinate history (2 fingers)
+my @yHist2 = ();                # y coordinate history (2 fingers)
+my @xHist3 = ();                # x coordinate history (3 fingers)
+my @yHist3 = ();                # y coordinate history (3 fingers)
+my @xHist4 = ();                # x coordinate history (4 fingers)
+my @yHist4 = ();                # y coordinate history (4 fingers)
+my @xHist5 = ();                # x coordinate history (5 fingers)
+my @yHist5 = ();                # y coordinate history (5 fingers)
+my $axis=0;
+my $rate=0;
+my $lastTime = 0;              # time monitor for TouchPad event reset
+my $eventTime = 0;             # ensure enough time has passed between events
+my @eventString= ("default");   # the event to execute
 
 my $synCmd = qq{synclient TouchpadOff=1 -m 10};
 my $currWind = GetInputFocus();
