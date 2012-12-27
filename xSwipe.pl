@@ -54,9 +54,9 @@ my $HorizScrollDelta=abs((split "= ", $Scroll_setting[1])[1]);
 
 if($naturalScroll==1){
   $confFileName=$NscrollConfFileName;
-  `synclient VertScrollDelta=-$VertScrollDelta HorizScrollDelta=-$HorizScrollDelta ClickFinger3=1`;
+  `synclient VertScrollDelta=-$VertScrollDelta HorizScrollDelta=-$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
 }else{
-  `synclient VertScrollDelta=$VertScrollDelta HorizScrollDelta=$HorizScrollDelta ClickFinger3=1`;
+  `synclient VertScrollDelta=$VertScrollDelta HorizScrollDelta=$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
   }
 
 open (area_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
