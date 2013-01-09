@@ -13,10 +13,10 @@ use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-#use Smart::Comments;
+use Smart::Comments;
 
 my $naturalScroll=0;
-my $BaseDist=1;
+my $baseDist=1;
 my $confFileName="eventKey.cfg";
 my $NscrollConfFileName="nScroll/eventKey.cfg";
 
@@ -26,7 +26,7 @@ while(my $ARGV = shift){
     $naturalScroll=1; 
   }elsif ($ARGV eq '-d'){
     if ($ARGV[0]>0){
-      $BaseDist=$ARGV[0];
+      $baseDist=$ARGV[0];
       shift;
     }else{
       print "Set a value greater than 0\n";
@@ -52,12 +52,7 @@ close(fileHundle);
 my $VertScrollDelta=abs((split "= ", $Scroll_setting[0])[1]);
 my $HorizScrollDelta=abs((split "= ", $Scroll_setting[1])[1]);
 
-if($naturalScroll==1){
-  $confFileName=$NscrollConfFileName;
-  `synclient VertScrollDelta=-$VertScrollDelta HorizScrollDelta=-$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
-}else{
-  `synclient VertScrollDelta=$VertScrollDelta HorizScrollDelta=$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
-  }
+&initSynclient($naturalScroll);
 
 open (area_setting, "synclient -l | grep Edge | grep -v -e Area -e Motion -e Scroll | ")or die "can't synclient -l";
 my @area_setting = <area_setting>;
@@ -68,8 +63,8 @@ my $TopEdge=(split "= ", $area_setting[2])[1];
 my $BottomEdge=(split "= ", $area_setting[3])[1];
 my $TouchpadSizeH = abs($TopEdge-$BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge-$RightEdge);
-my $xSwipeDist = $TouchpadSizeW*$BaseDist*0.1;
-my $ySwipeDist = $TouchpadSizeH*$BaseDist*0.1;
+my $xSwipeDist = $TouchpadSizeW*$baseDist*0.1;
+my $ySwipeDist = $TouchpadSizeH*$baseDist*0.1;
 ### @area_setting
 ### $TouchpadSizeH
 ### $TouchpadSizeW
@@ -91,8 +86,8 @@ my $sessionName = (split "session=", $data[0])[1];
 close(fileHundle);
 chomp($sessionName);
 if ($sessionName eq undef){$sessionName='other'};
-### $command got:$command
-### $sessionName got:$sessionName
+### $command
+### $sessionName
 
 my @swipeRight3=split "/", ($conf->{$sessionName}->{finger3}->{right});
 my @swipeLeft3=split "/", ($conf->{$sessionName}->{finger3}->{left});
@@ -125,7 +120,7 @@ my $lastTime = 0;              # time monitor for TouchPad event reset
 my $eventTime = 0;             # ensure enough time has passed between events
 my @eventString= ("default");   # the event to execute
 
-my $synCmd = qq{synclient TouchpadOff=1 -m 10};
+my $synCmd = qq{synclient -m 10};
 my $currWind = GetInputFocus();
 die "couldn't get input window" unless $currWind;
 open(INFILE," $synCmd |") or die "can't read from synclient";
@@ -137,7 +132,9 @@ while( my $line  = <INFILE>){
 
   if( $time - $lastTime > 0.1 ){
     cleanHist(1,2,3,4,5);
-    ### time reset, xHist3~5 all clear
+    if( $time - $lastTime > 5 ){
+      &initSynclient($naturalScroll);
+    }
   }#if time reset
   $lastTime = $time;
   $axis=0;
@@ -166,7 +163,7 @@ while( my $line  = <INFILE>){
       $rate=getRate(@yHist2);  
     }
   }elsif($f==3){
-    cleanHist(4,5);
+    cleanHist(1,2,4,5);
         push @xHist3, $x;
         push @yHist3, $y;
         $axis=getAxis(\@xHist3,\@yHist3,10,1);
@@ -177,7 +174,7 @@ while( my $line  = <INFILE>){
     }
 
   }elsif($f==4){
-    cleanHist(3,5);  
+    cleanHist(1,2,3,5);  
     push @xHist4, $x;
     push @yHist4, $y;
     $axis=getAxis(\@xHist4,\@yHist4,10,1);
@@ -187,7 +184,7 @@ while( my $line  = <INFILE>){
       $rate=getRate(@yHist4);  
     }
   }elsif($f==5){
-    cleanHist(3,4);
+    cleanHist(1,2,3,4);
     push @xHist5, $x;
     push @yHist5, $y;
     $axis=getAxis(\@xHist5,\@yHist5,10,1);
@@ -221,6 +218,19 @@ while( my $line  = <INFILE>){
 
 close(INFILE);
 
+###init
+sub initSynclient{
+  ### initSynclient
+  my $naturalScroll=$_[0];
+  if($naturalScroll==1){
+    $confFileName=$NscrollConfFileName;
+    `synclient VertScrollDelta=-$VertScrollDelta HorizScrollDelta=-$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
+  }else{
+    `synclient VertScrollDelta=$VertScrollDelta HorizScrollDelta=$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
+  }
+}
+
+
 sub getRate{
   my @hist=();
   my $rtn=0;
@@ -234,8 +244,6 @@ sub getRate{
   }elsif( "@revSrt" eq "@hist" ){ 
       $rtn = "-";
   }#if forward or backward
-  ## @hist got: @hist
-  ## @srt got: @srt
   return $rtn;
 }
 
@@ -265,7 +273,8 @@ sub getAxis{
   return $rtn;
 }
 
-sub cleanHist{ 
+sub cleanHist{
+  ### cleanHist 
   while(my $arg = shift){
     if($arg==1){
       @xHist1 = ();

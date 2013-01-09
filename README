@@ -2,10 +2,10 @@
 2012/12/27 - merged 2-finger NaturalScroll function.
 2012/12/23 - updated for option, -n and -d.
             -> -d RATE
-              : RATE sensitivity to swipe
-                RATE > 0, default value is 1.
+              : RATE is sensitivity to swipe.Default value is 1.
+                Shorten swipe-length by half (e.g.,"$perl xSwipe.pl -d 0.5")
             -> -n
-              : use natural scroll
+              : use natural scroll like a macook.
 2012/12/10 - updated for edge-swipe.
              ->avilable edge-swipe with 2finger from outside edge                            
            - fixed missing swipe bug.
@@ -34,38 +34,22 @@ Or run the script on the terminal run as sudo apt-get install libx11-guitest-per
 
 2.Enable SHMConfig
 Open /etc/X11/xorg.conf.d/50-synaptics.conf with your favorite text editor and edit it to enable SHMConfig
-You will need to create the /etc/X11/xorg.conf.d/ directory and create 50-synaptics.conf (if it doesn't exist yet)
+    $ sudo gedit /etc/X11/xorg.conf.d/50-synaptics.conf
+
+NOTE:You will need to create the /etc/X11/xorg.conf.d/ directory and create 50-synaptics.conf (if it doesn't exist yet) 
+    $ sudo mkdir /etc/X11/xorg.conf.d/  (if not exist)
 
 ----------/etc/X11/xorg.conf.d/50-synaptics.conf------------------------
-#setting for synaptics
 Section "InputClass"
 Identifier "evdev touchpad catchall"
 Driver "synaptics"
 MatchDevicePath "/dev/input/event*"
 MatchIsTouchpad "on"
 Option "Protocol" "event"
-Option "SHMConfig" "1"               # enable to "synclient -m"
-Option "FingerLow" "10"              # touchpad sensitivity
-Option "FingerHigh" "40"             # touchpad sensitivity
-Option "MinSpeed" "0.4"              # min speed
-Option "MaxSpeed" "2"                # Max speed
-Option "AccelFactor" "0.8"           # cursor acceleration
-Option "EmulateTwoFingerMinW" "8"    # two fingers min width
-Option "EmulateTwoFingerMinZ" "10"   # two fingers min pressure
-Option "HorizScrollDelta" "100"      # horizontal scroll threshold value
-Option "HorizTwoFingerScroll" "1"    # two fingers horizontal scroll
-Option "VertScrollDelta" "15"        # vertical scroll threshold value
-Option "VertTwoFingerScroll" "1"     # two fingers vertical scroll
-Option "TapButton1" "1"              # 1finger tap=1:left click
-Option "TapButton2" "3"              # 2fingers tap=3:right click
-Option "TapButton3" "2"              # 3fingers tap=2:middle click
-Option "PalmDetect" "1"              # palm tap detect
-Option "AreaRightEdge" "1020"        # touchpad right edge
-Option "AreaTopEdge" "40"            # touchpad top edge
-Option "FastTaps" "0"                # 
-Option "MaxTapTime" "100"            # set tap threshold maximum time 
+Option "SHMConfig" "on"
 EndSection
 ------------------------------------------------------------------------
+To reflect SHMConfig, restart your session. 
 
 That's it for preparation.
 
@@ -73,7 +57,7 @@ To run xSwipe, type below code on terminal.
 
     $ perl ~/xSwipe-master/xSwipe.pl
 
-Note:you should set "eventKey.cfg" into the same directory.
+Note:you should run xSwipe.pl in same directory as "eventKey.cfg" .
 
 You can use "swipe" with 3 or 4 fingers, and "swipe" can call an event.
 
