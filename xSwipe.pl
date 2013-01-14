@@ -7,7 +7,7 @@
   #  #   #    #  ##  ##     #    #       #
  #    #   ####   #    #     #    #       ######
 ################################################
-
+### moveWindow branch ###
 use strict;
 use Time::HiRes();
 use X11::GUITest qw( :ALL );
@@ -103,6 +103,8 @@ my @swipeDown5=split "/", ($conf->{$sessionName}->{finger5}->{down});
 my @swipeUp5=split "/", ($conf->{$sessionName}->{finger5}->{up});
 my @edgeSwipeRight=split "/", ($conf->{$sessionName}->{edgeSwipe}->{right});
 my @edgeSwipeLeft=split "/", ($conf->{$sessionName}->{edgeSwipe}->{left});
+### move window set
+my @longPress3=split "/", ($conf->{$sessionName}->{finger3}->{press});
 
 my @xHist1 = ();                # x coordinate history (1 finger)
 my @yHist1 = ();                # y coordinate history (1 finger)
@@ -164,13 +166,18 @@ while( my $line  = <INFILE>){
     }
   }elsif($f==3){
     cleanHist(1,2,4,5);
-        push @xHist3, $x;
-        push @yHist3, $y;
-        $axis=getAxis(\@xHist3,\@yHist3,10,1);
-        if($axis eq "x"){
+    push @xHist3, $x;
+    push @yHist3, $y;
+    $axis=getAxis(\@xHist3,\@yHist3,10,1);
+    if($axis eq "x"){
       $rate=getRate(@xHist3);
     }elsif($axis eq "y"){
       $rate=getRate(@yHist3);  
+    }elsif($axis eq "z"){
+      $axis=getAxis(\@xHist3,\@yHist3,30,0.5);
+      if($axis eq "z"){
+        ###press###########################
+      }
     }
 
   }elsif($f==4){
@@ -200,8 +207,10 @@ while( my $line  = <INFILE>){
   if ($axis ne 0 and $rate ne 0){
     swipe($f,$axis,$rate);
     cleanHist(1,2,3,4,5);
-  }
-  
+  }elsif ($axis eq "z" and $rate eq "0"){
+    swipe($f,$axis,$rate);
+    cleanHist(1,2,3,4,5);
+  } 
   # only process one event per time window
   if( $eventString[0] ne "default" ){
     ### ne default
@@ -250,26 +259,28 @@ sub getRate{
 sub getAxis{
   my($xHist, $yHist, $max, $DistRate)=@_;
   my $rtn =0;
-  my $x0=@$xHist[0];
-  my $y0=@$yHist[0];
-  my $xmax=@$xHist[$max];
-  my $ymax=@$yHist[$max];
-  my $xDist = abs( $x0 - $xmax );
-  my $yDist = abs( $y0 - $ymax );
   if(@$xHist>$max or @$yHist>$max){
-    if( $xDist > $yDist){
-        ### $xDist got:$xDist
+    my $x0=@$xHist[0];
+    my $y0=@$yHist[0];
+    my $xmax=@$xHist[$max];
+    my $ymax=@$yHist[$max];
+    my $xDist = abs( $x0 - $xmax );
+    my $yDist = abs( $y0 - $ymax );
+    if($xDist > $yDist){
       if($xDist > $xSwipeDist*$DistRate){
         $rtn="x";
+      }else{
+        $rtn="z";
       }
     }else{
-        ### $yDist got:$yDist
       if($yDist > $ySwipeDist*$DistRate){
         $rtn="y";
+      }else{
+        $rtn="z";
       }
     }
   }
-  ### getAxsis::$rtn got:$rtn
+  ### $rtn
   return $rtn;
 }
 
@@ -318,6 +329,10 @@ sub swipe{
       }elsif($_[2] eq "-"){
         @eventString = @swipeUp3;
       }
+    }elsif($_[1] eq "z"){
+      if($_[2] eq "0"){
+        @eventString = @longPress3;
+      }
     }
   }elsif($_[0]==4){
     if($_[1] eq "x"){
@@ -348,6 +363,5 @@ sub swipe{
       }
     }
   }
-
   return @eventString;
 }
