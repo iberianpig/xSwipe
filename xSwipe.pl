@@ -103,8 +103,8 @@ my @swipeDown5=split "/", ($conf->{$sessionName}->{finger5}->{down});
 my @swipeUp5=split "/", ($conf->{$sessionName}->{finger5}->{up});
 my @edgeSwipeRight=split "/", ($conf->{$sessionName}->{edgeSwipe}->{right});
 my @edgeSwipeLeft=split "/", ($conf->{$sessionName}->{edgeSwipe}->{left});
-### move window set
 my @longPress3=split "/", ($conf->{$sessionName}->{finger3}->{press});
+my @longPress4=split "/", ($conf->{$sessionName}->{finger4}->{press});
 
 my @xHist1 = ();                # x coordinate history (1 finger)
 my @yHist1 = ();                # y coordinate history (1 finger)
@@ -189,7 +189,13 @@ while( my $line  = <INFILE>){
       $rate=getRate(@xHist4);
     }elsif($axis eq "y"){
       $rate=getRate(@yHist4);  
+    }elsif($axis eq "z"){
+      $axis=getAxis(\@xHist4,\@yHist4,30,0.5);
+      if($axis eq "z"){
+        ###press###########################
+      }
     }
+
   }elsif($f==5){
     cleanHist(1,2,3,4);
     push @xHist5, $x;
@@ -346,6 +352,10 @@ sub swipe{
         @eventString = @swipeDown4;
       }elsif($_[2] eq "-"){
         @eventString = @swipeUp4;
+      }
+    }elsif($_[1] eq "z"){
+      if($_[2] eq "0"){
+        @eventString = @longPress4;
       }
     }
   }elsif($_[0]==5){
