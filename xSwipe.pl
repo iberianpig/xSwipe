@@ -7,13 +7,12 @@
   #  #   #    #  ##  ##     #    #       #
  #    #   ####   #    #     #    #       ######
 ################################################
-### moveWindow branch ###
 use strict;
 use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-use Smart::Comments;
+#use Smart::Comments;
 
 my $naturalScroll=0;
 my $baseDist=1;
