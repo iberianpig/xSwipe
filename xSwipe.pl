@@ -7,12 +7,13 @@
   #  #   #    #  ##  ##     #    #       #
  #    #   ####   #    #     #    #       ######
 ################################################
+### Branche for edgeSwipe3
 use strict;
 use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-#use Smart::Comments;
+use Smart::Comments;
 
 my $naturalScroll=0;
 my $baseDist=1;
@@ -20,7 +21,7 @@ my $confFileName="eventKey.cfg";
 my $NscrollConfFileName="nScroll/eventKey.cfg";
 
 while(my $ARGV = shift){
-  ### $ARGV got:$ARGV
+  ### $ARGV
   if ($ARGV eq '-n'){
     $naturalScroll=1; 
   }elsif ($ARGV eq '-d'){
@@ -67,13 +68,18 @@ my $ySwipeDist = $TouchpadSizeH*$baseDist*0.1;
 ### @area_setting
 ### $TouchpadSizeH
 ### $TouchpadSizeW
-### $xSwipeDist got:$xSwipeDist
-### $ySwipeDist got:$ySwipeDist
+### $xSwipeDist 
+### $ySwipeDist 
 
 my $edgeSwipeLeftEdge=$LeftEdge+$xSwipeDist;
 my $edgeSwipeRightEdge=$RightEdge-$xSwipeDist;
-### $edgeSwipeLeftEdge got:$edgeSwipeLeftEdge
-### $edgeSwipeRightEdge got:$edgeSwipeRightEdge
+my $edgeSwipeTopEdge=$TopEdge+$ySwipeDist;
+my $edgeSwipeBottomEdge=$BottomEdge-$ySwipeDist;
+
+### $edgeSwipeLeftEdge 
+### $edgeSwipeRightEdge 
+### $edgeSwipeTopEdge
+### $edgeSwipeBottomEdge
 
 #load config
 my $script_dir = $FindBin::Bin;#CurrentPath
@@ -102,6 +108,18 @@ my @swipeDown5=split "/", ($conf->{$sessionName}->{finger5}->{down});
 my @swipeUp5=split "/", ($conf->{$sessionName}->{finger5}->{up});
 my @edgeSwipeRight=split "/", ($conf->{$sessionName}->{edgeSwipe}->{right});
 my @edgeSwipeLeft=split "/", ($conf->{$sessionName}->{edgeSwipe}->{left});
+my @edgeSwipeUp=split "/", ($conf->{$sessionName}->{edgeSwipe}->{up});
+my @edgeSwipeDown=split "/", ($conf->{$sessionName}->{edgeSwipe}->{down});
+my @edgeSwipeRight2=split "/", ($conf->{$sessionName}->{edgeSwipe2}->{right});
+my @edgeSwipeLeft2=split "/", ($conf->{$sessionName}->{edgeSwipe2}->{left});
+my @edgeSwipeUp2=split "/", ($conf->{$sessionName}->{edgeSwipe2}->{up});
+my @edgeSwipeDown2=split "/", ($conf->{$sessionName}->{edgeSwipe2}->{down});
+my @edgeSwipeRight3=split "/", ($conf->{$sessionName}->{edgeSwipe3}->{right});
+my @edgeSwipeLeft3=split "/", ($conf->{$sessionName}->{edgeSwipe3}->{left});
+my @edgeSwipeUp3=split "/", ($conf->{$sessionName}->{edgeSwipe3}->{up});
+my @edgeSwipeDown3=split "/", ($conf->{$sessionName}->{edgeSwipe4}->{down});
+#todo longPress2
+#my @longPress2=split "/", ($conf->{$sessionName}->{finger2}->{press});
 my @longPress3=split "/", ($conf->{$sessionName}->{finger3}->{press});
 my @longPress4=split "/", ($conf->{$sessionName}->{finger4}->{press});
 
@@ -147,6 +165,17 @@ while( my $line  = <INFILE>){
       ###edge1left
       push @xHist1, $x;
       push @yHist1, $y;
+      $axis=getAxis(\@xHist1,\@yHist1,2,0.1);
+      if($axis eq "x"){
+        $rate=getRate(@xHist1);
+      }elsif($axis eq "y"){
+        $rate=getRate(@yHist1);  
+      }elsif($axis eq "z"){
+        $axis=getAxis(\@xHist1,\@yHist1,30,0.5);
+        if($axis eq "z"){
+          ###press1###########################
+        }
+      }
     }elsif ($edgeSwipeRightEdge<$x){
       ###edge1right
       push @xHist1, $x;
@@ -209,6 +238,7 @@ while( my $line  = <INFILE>){
     cleanHist(1,2,3,4,5);  
   }
 
+  #detect action
   if ($axis ne 0 and $rate ne 0){
     swipe($f,$axis,$rate);
     cleanHist(1,2,3,4,5);
@@ -224,7 +254,7 @@ while( my $line  = <INFILE>){
       $eventTime = $time;
       PressKey $_ foreach(@eventString); 
       ReleaseKey $_ foreach(reverse @eventString);
-      ### @eventString got:@eventString 
+      ### @eventString 
     }#if enough time has passed
     @eventString = ("default");
   }#if non default event
@@ -290,7 +320,6 @@ sub getAxis{
 }
 
 sub cleanHist{
-  ### cleanHist 
   while(my $arg = shift){
     if($arg==1){
       @xHist1 = ();
@@ -315,7 +344,7 @@ sub cleanHist{
 sub swipe{
   if($_[0]==2){
     if($_[1] eq "x"){
-      if($_[2] eq"+"){
+      if($_[2] eq "+"){
         @eventString = @edgeSwipeRight;
       }elsif($_[2] eq "-"){
         @eventString = @edgeSwipeLeft;
@@ -323,7 +352,7 @@ sub swipe{
     }
   }elsif($_[0]==3){
     if($_[1] eq "x"){
-      if($_[2] eq"+"){
+      if($_[2] eq "+"){
         @eventString = @swipeRight3;
       }elsif($_[2] eq "-"){
         @eventString = @swipeLeft3;
