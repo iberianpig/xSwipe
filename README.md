@@ -75,7 +75,7 @@ Please check this article, ["How to customize gesture"](https://github.com/iberi
 
 * go back/forward on browser
 * move workspaces
-* ove a window
+* move a window
 * open launcher
 * open a terminal
 * close a window
