@@ -7,26 +7,25 @@
   #  #   #    #  ##  ##     #    #       #
  #    #   ####   #    #     #    #       ######
 ################################################
-### Branche for edgeSwipe3
 use strict;
 use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-use Smart::Comments;
+#use Smart::Comments;
 
-my $naturalScroll=0;
-my $baseDist=0.1;
-my $confFileName="eventKey.cfg";
-my $nScrollConfFileName="nScroll/eventKey.cfg";
+my $naturalScroll = 0;
+my $baseDist = 0.1;
+my $confFileName = "eventKey.cfg";
+my $nScrollConfFileName = "nScroll/eventKey.cfg";
 
 while(my $ARGV = shift){
     ### $ARGV
     if ($ARGV eq '-n'){
-        $naturalScroll=1; 
+        $naturalScroll = 1; 
     }elsif ($ARGV eq '-d'){
-        if ($ARGV[0]>0){
-            $baseDist=$ARGV[0]*0.1;
+        if ($ARGV[0] > 0){
+            $baseDist = $baseDist * $ARGV[0];
             shift;
         }else{
             print "Set a value greater than 0\n";
@@ -68,7 +67,7 @@ my $TouchpadSizeH = abs($TopEdge - $BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge - $RightEdge);
 # todo:タッチパッドの比率^2でMinThresholdを決定してもいいかも
 my $xMinThreshold = $TouchpadSizeW * $baseDist; 
-my $yMinThreshold = $TouchpadSizeH * $baseDist * 0.5;
+my $yMinThreshold = $TouchpadSizeH * $baseDist;
 # todo: エリア取得方法の見直し。場合によっては外部ファイル化やキャリブレーションを検討
 my $innerEdgeLeft   = $LeftEdge   + $xMinThreshold;
 my $innerEdgeRight  = $RightEdge  - $xMinThreshold;
@@ -117,7 +116,6 @@ my @edgeSwipe3Down  = split "/", ($conf->{$sessionName}->{edgeSwipe3}->{down});
 my @edgeSwipe3Up    = split "/", ($conf->{$sessionName}->{edgeSwipe3}->{up});
 my @edgeSwipe4Down  = split "/", ($conf->{$sessionName}->{edgeSwipe4}->{down});
 my @edgeSwipe4Up    = split "/", ($conf->{$sessionName}->{edgeSwipe4}->{up});
-#todo: make recognizer of longPress2
 my @longPress2 = split "/", ($conf->{$sessionName}->{swipe2}->{press});
 my @longPress3 = split "/", ($conf->{$sessionName}->{swipe3}->{press});
 my @longPress4 = split "/", ($conf->{$sessionName}->{swipe4}->{press});
@@ -136,7 +134,7 @@ my @yHist5 = ();                # y coordinate history (5 fingers)
 
 my $axis = 0;
 my $rate = 0;
-my $touchState = 0;
+my $touchState = 0;             # touchState={0/1/2} 0=notSwiping, 1=Swiping, 2=edgeSwiping
 my $lastTime = 0;               # time monitor for TouchPad event reset
 my $eventTime = 0;              # ensure enough time has passed between events
 my @eventString = ("default");  # the event to execute
@@ -150,7 +148,7 @@ while(my $line = <INFILE>){
     my($time, $x, $y, $z, $f, $w) = split " ", $line;
     next if($time =~ /time/); #ignore header lines
 
-    if($time - $lastTime > 0.1){
+    if($time - $lastTime > 5){
         cleanHist(1,2,3,4,5);
         $touchState = 0;
         ### touchState reset got:$touchState
@@ -161,53 +159,45 @@ while(my $line = <INFILE>){
     $lastTime = $time;
     $axis = 0;
     $rate = 0;
-    #touchState={0/1/2} 0=notSwiping, 1=Swiping, 2=edgeSwiping
     if($f == 1){
-        cleanHist(2 ,3 ,4 ,5);
-        if ($x < $innerEdgeLeft){
-            ###edge1left
-            push @xHist1, $x;
-            push @yHist1, $y;
-            $axis = getAxis(\@xHist1, \@yHist1, 2, 0.1);
-            if($axis eq "x"){
-                $rate = getRate(@xHist1);
+        if($touchState == 0){
+            if(($x < $innerEdgeLeft)or($innerEdgeRight < $x)){
                 $touchState = 2;
-                ### edge1left_X
-            }elsif($axis eq "y"){
-                $rate = getRate(@yHist1);  
-                $touchState = 2;
-                ### edge1left_Y
-            }
-        }elsif ($innerEdgeRight < $x){
-            ###edge1right
-            push @xHist1, $x;
-            push @yHist1, $y;
-            $axis = getAxis(\@xHist1, \@yHist1, 2, 0.1);
-            if($axis eq "x"){
-                $rate = getRate(@xHist1);
-                $touchState = 2;
-                ### edge1right_X
-            }elsif($axis eq "y"){
-                $rate = getRate(@yHist1);  
-                $touchState = 2;
-                ### edge1right_Y
+            }else{
+                $touchState = 1;
             }
         }
+        cleanHist(2 ,3 ,4 ,5);
+        if ($touchState == 2){
+            `synclient TouchPadOff=1`;
+            push @xHist1, $x;
+            push @yHist1, $y;
+            $axis = getAxis(\@xHist1, \@yHist1, 2, 0.1);
+            if($axis eq "x"){
+                $rate = getRate(@xHist1);
+                $touchState = 2;
+            }elsif($axis eq "y"){
+                $rate = getRate(@yHist1);  
+                $touchState = 2;
+            }
+        }
+
     }elsif($f == 2){
         if($touchState == 0){
-            #TODO: kakikake
-            if(($x < $innerEdgeLeft) or ($innerEdgeRight  < $x)
-            or ($y < $innerEdgeTop ) or ($innerEdgeBottom < $y)){
+            if(
+                ($x < $innerEdgeLeft) or ($innerEdgeRight  < $x)
+           # or ($y < $innerEdgeTop ) or ($innerEdgeBottom < $y)
+            ){
                 $touchState = 2;
                 ### $touchState
             }else{
                 $touchState = 1;
             }
         }
-        cleanHist(3, 4, 5);
+        cleanHist(1, 3, 4, 5);
         push @xHist2, $x;
         push @yHist2, $y;
-        $axis = getAxis(\@xHist2, \@yHist2, 3, 0.3);
+        $axis = getAxis(\@xHist2, \@yHist2, 2, 0.1);
         if($axis eq "x"){
             $rate = getRate(@xHist2);
         }elsif($axis eq "y"){
@@ -218,8 +208,6 @@ while(my $line = <INFILE>){
             }
         }
 
-        ###edge2
-        # todo: touchStateの条件分岐を行う 
     }elsif($f == 3){
         if($touchState == 0 ){
             if(($y < $innerEdgeTop)or($innerEdgeBottom < $y)){
@@ -287,6 +275,7 @@ while(my $line = <INFILE>){
     }else{
         cleanHist(1, 2, 3, 4, 5);  
         $touchState = 0; #touchState Reset
+        `synclient TouchPadOff=0`;
     }
 
 
@@ -305,14 +294,13 @@ while(my $line = <INFILE>){
             PressKey $_ foreach(@eventString); 
             ReleaseKey $_ foreach(reverse @eventString);
             ### @eventString 
-        }#if enough time has passed
+        }# if enough time has passed
         @eventString = ("default");
     }#if non default event
 }#synclient line in
 close(INFILE);
 
 ###init
-#todo:Rename initSynclient
 sub initSynclient{
     ### initSynclient
     my $naturalScroll=$_[0];
@@ -324,9 +312,8 @@ sub initSynclient{
     }
 }
 
-#todo:Rename DistRate
 sub getAxis{
-    my($xHist, $yHist, $max, $DistRate)=@_;
+    my($xHist, $yHist, $max, $thresholdRate)=@_;
     if(@$xHist > $max or @$yHist > $max){
         my $x0 = @$xHist[0];
         my $y0 = @$yHist[0];
@@ -335,13 +322,13 @@ sub getAxis{
         my $xDist = abs( $x0 - $xmax );
         my $yDist = abs( $y0 - $ymax );
         if($xDist > $yDist){
-            if($xDist > $xMinThreshold * $DistRate){
+            if($xDist > $xMinThreshold * $thresholdRate){
                 return "x";
             }else{
                 return "z";
             }
         }else{
-            if($yDist > $yMinThreshold * $DistRate){
+            if($yDist > $yMinThreshold * $thresholdRate){
                 return "y";
             }else{
                 return "z";
@@ -390,13 +377,19 @@ sub setEventString{
     if($f == 2){
         if($axis eq "x"){
             if($rate eq "+"){
-                return @edgeSwipe2Right;
+                if($touchState eq "2"){
+                    return @edgeSwipe2Right;
+                }
             }elsif($rate eq "-"){
-                return @edgeSwipe2Left;
+                if($touchState eq "2"){
+                    return @edgeSwipe2Left;
+                }
             }
         }elsif($axis eq "z"){
             if($rate eq "0"){
-                return @longPress2;
+                if($touchState eq "1"){
+                    return @longPress2;
+                }
             }
         }
     }elsif($f == 3){
