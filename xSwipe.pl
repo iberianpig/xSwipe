@@ -147,7 +147,7 @@ while(my $line = <INFILE>){
     chomp($line);
     my($time, $x, $y, $z, $f, $w) = split " ", $line;
     next if($time =~ /time/); #ignore header lines
-
+=pod
     if($time - $lastTime > 5){
         cleanHist(1,2,3,4,5);
         $touchState = 0;
@@ -156,6 +156,7 @@ while(my $line = <INFILE>){
             &initSynclient($naturalScroll);
         }
     }#if time reset
+=cut
     $lastTime = $time;
     $axis = 0;
     $rate = 0;
@@ -163,13 +164,13 @@ while(my $line = <INFILE>){
         if($touchState == 0){
             if(($x < $innerEdgeLeft)or($innerEdgeRight < $x)){
                 $touchState = 2;
+                `synclient TouchPadOff=1`;
             }else{
                 $touchState = 1;
             }
         }
         cleanHist(2 ,3 ,4 ,5);
         if ($touchState == 2){
-            `synclient TouchPadOff=1`;
             push @xHist1, $x;
             push @yHist1, $y;
             $axis = getAxis(\@xHist1, \@yHist1, 2, 0.1);
