@@ -69,8 +69,8 @@ my $TouchpadSizeW = abs($LeftEdge - $RightEdge);
 my $xMinThreshold = $TouchpadSizeW * $baseDist; 
 my $yMinThreshold = $TouchpadSizeH * $baseDist;
 # todo: エリア取得方法の見直し。場合によっては外部ファイル化やキャリブレーションを検討
-my $innerEdgeLeft   = $LeftEdge   + $xMinThreshold;
-my $innerEdgeRight  = $RightEdge  - $xMinThreshold;
+my $innerEdgeLeft   = $LeftEdge   + $xMinThreshold/2;
+my $innerEdgeRight  = $RightEdge  - $xMinThreshold/2;
 my $innerEdgeTop    = $TopEdge    + $yMinThreshold;
 my $innerEdgeBottom = $BottomEdge - $yMinThreshold;
 
@@ -147,16 +147,9 @@ while(my $line = <INFILE>){
     chomp($line);
     my($time, $x, $y, $z, $f, $w) = split " ", $line;
     next if($time =~ /time/); #ignore header lines
-=pod
     if($time - $lastTime > 5){
-        cleanHist(1,2,3,4,5);
-        $touchState = 0;
-        ### touchState reset got:$touchState
-        if($time - $lastTime > 5){
             &initSynclient($naturalScroll);
-        }
     }#if time reset
-=cut
     $lastTime = $time;
     $axis = 0;
     $rate = 0;
