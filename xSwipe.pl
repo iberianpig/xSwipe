@@ -22,7 +22,7 @@ my $nScrollConfFileName = "nScroll/eventKey.cfg";
 while(my $ARGV = shift){
     ### $ARGV
     if ($ARGV eq '-n'){
-        $naturalScroll = 1; 
+        $naturalScroll = 1;
     }elsif ($ARGV eq '-d'){
         if ($ARGV[0] > 0){
             $baseDist = $baseDist * $ARGV[0];
@@ -30,14 +30,14 @@ while(my $ARGV = shift){
         }else{
             print "Set a value greater than 0\n";
             exit(1);
-        } 
+        }
     }else{
         print "
         Available Options
         -d RATE
             RATE sensitivity to swipe
             RATE > 0, default value is 1.
-        -n 
+        -n
             Natural Scrolling, like a macbook
             setting file path=nScroll/eventKey.cfg
         \n";
@@ -66,7 +66,7 @@ my $BottomEdge = (split "= ", $area_setting[3])[1];
 my $TouchpadSizeH = abs($TopEdge - $BottomEdge);
 my $TouchpadSizeW = abs($LeftEdge - $RightEdge);
 # todo:タッチパッドの比率^2でMinThresholdを決定してもいいかも
-my $xMinThreshold = $TouchpadSizeW * $baseDist; 
+my $xMinThreshold = $TouchpadSizeW * $baseDist;
 my $yMinThreshold = $TouchpadSizeH * $baseDist;
 # todo: エリア取得方法の見直し。場合によっては外部ファイル化やキャリブレーションを検討
 my $innerEdgeLeft   = $LeftEdge   + $xMinThreshold/2;
@@ -77,10 +77,10 @@ my $innerEdgeBottom = $BottomEdge - $yMinThreshold;
 ### @area_setting
 ### $TouchpadSizeH
 ### $TouchpadSizeW
-### $xMinThreshold 
-### $yMinThreshold 
-### $innerEdgeLeft 
-### $innerEdgeRight 
+### $xMinThreshold
+### $yMinThreshold
+### $innerEdgeLeft
+### $innerEdgeRight
 ### $innerEdgeTop
 ### $innerEdgeBottom
 
@@ -92,7 +92,10 @@ my @data = <fileHundle>;
 my $sessionName = (split "session=", $data[0])[1];
 close(fileHundle);
 chomp($sessionName);
-if ($sessionName eq undef){$sessionName='other'};
+#if ($sessionName eq undef){$sessionName='other'};
+#if (defined $conf {"$sessionName"}){$sessionName='other'};
+$sessionName = ("$sessionName" ~~ $conf) ? "$sessionName" : 'other';
+# todo fix matching eventkey.cfg
 ### $sessionName
 
 my @swipe3Right = split "/", ($conf->{$sessionName}->{swipe3}->{right});
@@ -171,7 +174,7 @@ while(my $line = <INFILE>){
                 $rate = getRate(@xHist1);
                 $touchState = 2;
             }elsif($axis eq "y"){
-                $rate = getRate(@yHist1);  
+                $rate = getRate(@yHist1);
                 $touchState = 2;
             }
         }
@@ -195,7 +198,7 @@ while(my $line = <INFILE>){
         if($axis eq "x"){
             $rate = getRate(@xHist2);
         }elsif($axis eq "y"){
-            $rate = getRate(@yHist2);  
+            $rate = getRate(@yHist2);
         }elsif($axis eq "z"){
             $axis = getAxis(\@xHist2, \@yHist2, 30, 0.5);
             if($axis eq "z"){
@@ -218,7 +221,7 @@ while(my $line = <INFILE>){
         if($axis eq "x"){
             $rate = getRate(@xHist3);
         }elsif($axis eq "y"){
-            $rate = getRate(@yHist3);  
+            $rate = getRate(@yHist3);
         }elsif($axis eq "z"){
             $axis = getAxis(\@xHist3, \@yHist3, 30, 0.5);
             if($axis eq "z"){
@@ -234,14 +237,14 @@ while(my $line = <INFILE>){
                 $touchState = 1;
             }
         }
-        cleanHist(1, 2, 3, 5);  
+        cleanHist(1, 2, 3, 5);
         push @xHist4, $x;
         push @yHist4, $y;
         $axis = getAxis(\@xHist4, \@yHist4, 10, 1);
         if($axis eq "x"){
             $rate = getRate(@xHist4);
         }elsif($axis eq "y"){
-            $rate = getRate(@yHist4);  
+            $rate = getRate(@yHist4);
         }elsif($axis eq "z"){
             $axis = getAxis(\@xHist4, \@yHist4, 30, 0.5);
             if($axis eq "z"){
@@ -267,7 +270,7 @@ while(my $line = <INFILE>){
             $rate = getRate(@yHist5);
         }
     }else{
-        cleanHist(1, 2, 3, 4, 5);  
+        cleanHist(1, 2, 3, 4, 5);
         $touchState = 0; #touchState Reset
         `synclient TouchPadOff=0`;
     }
@@ -285,9 +288,9 @@ while(my $line = <INFILE>){
         if( abs($time - $eventTime) > 0.3 ){
             ### $time - $eventTime got: $time - $eventTime
             $eventTime = $time;
-            PressKey $_ foreach(@eventString); 
+            PressKey $_ foreach(@eventString);
             ReleaseKey $_ foreach(reverse @eventString);
-            ### @eventString 
+            ### @eventString
         }# if enough time has passed
         @eventString = ("default");
     }#if non default event
@@ -338,7 +341,7 @@ sub getRate{
     my @revSrt = sort {$b <=> $a} @hist;
     if( "@srt" eq "@hist" ){
         return "+";
-    }elsif( "@revSrt" eq "@hist" ){ 
+    }elsif( "@revSrt" eq "@hist" ){
         return "-";
     }#if forward or backward
     return 0;
