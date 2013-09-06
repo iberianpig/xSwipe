@@ -45,6 +45,8 @@ while(my $ARGV = shift){
     }
 }
 
+system("syndaemon -m 1 -i 0.5 -K -t &");
+
 open (Scroll_setting, "synclient -l | grep ScrollDelta | grep -v -e Circ | ")or die "can't synclient -l";
 my @Scroll_setting = <Scroll_setting>;
 close(fileHundle);
@@ -151,7 +153,7 @@ while(my $line = <INFILE>){
     my($time, $x, $y, $z, $f, $w) = split " ", $line;
     next if($time =~ /time/); #ignore header lines
     if($time - $lastTime > 5){
-            &initSynclient($naturalScroll);
+        &initSynclient($naturalScroll);
     }#if time reset
     $lastTime = $time;
     $axis = 0;
@@ -160,7 +162,7 @@ while(my $line = <INFILE>){
         if($touchState == 0){
             if(($x < $innerEdgeLeft)or($innerEdgeRight < $x)){
                 $touchState = 2;
-                `synclient TouchPadOff=1`;
+                &switchTouchPad("Off");
             }else{
                 $touchState = 1;
             }
@@ -271,14 +273,16 @@ while(my $line = <INFILE>){
         }
     }else{
         cleanHist(1, 2, 3, 4, 5);
-        $touchState = 0; #touchState Reset
-        `synclient TouchPadOff=0`;
+        # if($touchState > 0){
+            $touchState = 0; #touchState Reset
+            &switchTouchPad("On");
+        # }
     }
 
 
 #detect action
     if ($axis ne 0){
-        @eventString=setEventString($f,$axis,$rate,$touchState);
+        @eventString = setEventString($f,$axis,$rate,$touchState);
         cleanHist(1, 2, 3, 4, 5);
     }
 
@@ -300,14 +304,37 @@ close(INFILE);
 ###init
 sub initSynclient{
     ### initSynclient
-    my $naturalScroll=$_[0];
-    if($naturalScroll==1){
-        $confFileName=$nScrollConfFileName;
+    my $naturalScroll = $_[0];
+    if($naturalScroll == 1){
+        $confFileName = $nScrollConfFileName;
         `synclient VertScrollDelta=-$VertScrollDelta HorizScrollDelta=-$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
     }else{
         `synclient VertScrollDelta=$VertScrollDelta HorizScrollDelta=$HorizScrollDelta ClickFinger3=1 TapButton3=2`;
     }
 }
+
+sub switchTouchPad{
+    open(TOUCHPADOFF,"synclient -l | grep TouchpadOff |") or die "can't read from synclient";
+    my $TouchpadOff = <TOUCHPADOFF>;
+    close(TOUCHPADOFF);
+    chomp($TouchpadOff);
+    my $TouchpadOff = (split "= ", $TouchpadOff)[1];
+    ### $TouchpadOff
+    my $switch_flag = shift;
+    ### $switch_flag
+    if($switch_flag eq 'Off'){
+        if($TouchpadOff eq '0'){
+            `synclient TouchPadOff=1`;
+        }
+    }elsif($switch_flag eq 'On'){
+        if($TouchpadOff eq '1' ){
+            `synclient TouchPadOff=0`;
+        }
+    }
+}
+
+
+
 
 sub getAxis{
     my($xHist, $yHist, $max, $thresholdRate)=@_;
@@ -458,3 +485,4 @@ sub setEventString{
     }
     return "default";
 }
+
