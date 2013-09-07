@@ -44,7 +44,7 @@ while(my $ARGV = shift){
         exit(1);
     }
 }
-
+# add syndaemon setting
 system("syndaemon -m 1 -i 0.5 -K -t &");
 
 open (Scroll_setting, "synclient -l | grep ScrollDelta | grep -v -e Circ | ")or die "can't synclient -l";
@@ -94,10 +94,7 @@ my @data = <fileHundle>;
 my $sessionName = (split "session=", $data[0])[1];
 close(fileHundle);
 chomp($sessionName);
-#if ($sessionName eq undef){$sessionName='other'};
-#if (defined $conf {"$sessionName"}){$sessionName='other'};
 $sessionName = ("$sessionName" ~~ $conf) ? "$sessionName" : 'other';
-# todo fix matching eventkey.cfg
 ### $sessionName
 
 my @swipe3Right = split "/", ($conf->{$sessionName}->{swipe3}->{right});
@@ -219,7 +216,7 @@ while(my $line = <INFILE>){
         cleanHist(1, 2, 4, 5);
         push @xHist3, $x;
         push @yHist3, $y;
-        $axis = getAxis(\@xHist3, \@yHist3, 10, 1);
+        $axis = getAxis(\@xHist3, \@yHist3, 5, 0.5);
         if($axis eq "x"){
             $rate = getRate(@xHist3);
         }elsif($axis eq "y"){
@@ -242,7 +239,7 @@ while(my $line = <INFILE>){
         cleanHist(1, 2, 3, 5);
         push @xHist4, $x;
         push @yHist4, $y;
-        $axis = getAxis(\@xHist4, \@yHist4, 10, 1);
+        $axis = getAxis(\@xHist4, \@yHist4, 5, 0.5);
         if($axis eq "x"){
             $rate = getRate(@xHist4);
         }elsif($axis eq "y"){
@@ -265,7 +262,7 @@ while(my $line = <INFILE>){
         cleanHist(1, 2, 3 ,4);
         push @xHist5, $x;
         push @yHist5, $y;
-        $axis = getAxis(\@xHist5, \@yHist5, 10, 1);
+        $axis = getAxis(\@xHist5, \@yHist5, 5, 0.5);
         if($axis eq "x"){
             $rate = getRate(@xHist5);
         }elsif($axis eq "y"){
@@ -273,10 +270,10 @@ while(my $line = <INFILE>){
         }
     }else{
         cleanHist(1, 2, 3, 4, 5);
-        # if($touchState > 0){
+        if($touchState > 0){
             $touchState = 0; #touchState Reset
             &switchTouchPad("On");
-        # }
+        }
     }
 
 
@@ -332,7 +329,6 @@ sub switchTouchPad{
         }
     }
 }
-
 
 
 
