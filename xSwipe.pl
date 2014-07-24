@@ -59,7 +59,7 @@ while(my $ARGV = shift){
     }
 }
 # add syndaemon setting
-system("syndaemon -i 0.5 -K -t -d &");
+system("syndaemon -m 10 -i 0.5 -K -t -d &");
 
 open (Scroll_setting, "synclient -l | grep ScrollDelta | grep -v -e Circ | ")or die "can't synclient -l";
 my @Scroll_setting = <Scroll_setting>;
