@@ -16,6 +16,7 @@ use FindBin;
 
 my $naturalScroll = 0;
 my $baseDist = 0.1;
+my $pollingInterval = 10;
 my $confFileName = "eventKey.cfg";
 my $nScrollConfFileName = "nScroll/eventKey.cfg";
 
@@ -26,6 +27,16 @@ while(my $ARGV = shift){
     }elsif ($ARGV eq '-d'){
         if ($ARGV[0] > 0){
             $baseDist = $baseDist * $ARGV[0];
+            ### $baseDist
+            shift;
+        }else{
+            print "Set a value greater than 0\n";
+            exit(1);
+        }
+    }elsif ($ARGV eq '-m'){
+        if ($ARGV[0] > 0){
+            $pollingInterval = $ARGV[0];
+            ### $pollingInterval
             shift;
         }else{
             print "Set a value greater than 0\n";
@@ -36,7 +47,10 @@ while(my $ARGV = shift){
         Available Options
         -d RATE
             RATE sensitivity to swipe
-            RATE > 0, default value is 1.
+            RATE > 0, default value is 1
+        -m INTERVAL
+            INTERVAL how often synclient monitor changes to the touchpad state
+            INTERVAL > 0, default value is 10 (ms)
         -n
             Natural Scrolling, like a macbook
             setting file path=nScroll/eventKey.cfg
@@ -45,7 +59,7 @@ while(my $ARGV = shift){
     }
 }
 # add syndaemon setting
-system("syndaemon -m 1 -i 0.5 -K -t &");
+system("syndaemon -i 0.5 -K -t -d &");
 
 open (Scroll_setting, "synclient -l | grep ScrollDelta | grep -v -e Circ | ")or die "can't synclient -l";
 my @Scroll_setting = <Scroll_setting>;
@@ -143,7 +157,7 @@ my @eventString = ("default");  # the event to execute
 
 my $currWind = GetInputFocus();
 die "couldn't get input window" unless $currWind;
-open(INFILE,"synclient -m 10 |") or die "can't read from synclient";
+open(INFILE,"synclient -m $pollingInterval |") or die "can't read from synclient";
 
 while(my $line = <INFILE>){
     chomp($line);
@@ -286,7 +300,7 @@ while(my $line = <INFILE>){
 # only process one event per time window
     if( $eventString[0] ne "default" ){
         ### ne default
-        if( abs($time - $eventTime) > 0.3 ){
+        if( abs($time - $eventTime) > 0.2 ){
             ### $time - $eventTime got: $time - $eventTime
             $eventTime = $time;
             PressKey $_ foreach(@eventString);
@@ -301,6 +315,7 @@ close(INFILE);
 ###init
 sub initSynclient{
     ### initSynclient
+    # &switchTouchPad('On');
     my $naturalScroll = $_[0];
     if($naturalScroll == 1){
         $confFileName = $nScrollConfFileName;
@@ -321,11 +336,11 @@ sub switchTouchPad{
     ### $switch_flag
     if($switch_flag eq 'Off'){
         if($TouchpadOff eq '0'){
-            `synclient TouchPadOff=1`;
+            `synclient TouchpadOff=1`;
         }
     }elsif($switch_flag eq 'On'){
-        if($TouchpadOff eq '1' ){
-            `synclient TouchPadOff=0`;
+        if($TouchpadOff ne '0' ){
+            `synclient TouchpadOff=0`;
         }
     }
 }

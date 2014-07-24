@@ -64,9 +64,14 @@ Additionally, some gestures are avilable.
 * *long-press* : hold pressure for 0.5 seconds with 3 or 4 fingers.
 
 ### Option
+
 *   `-d RATE` :
       *RATE* is sensitivity to swipe.Default value is 1.
       Shorten swipe-length by half (e.g.,`$ perl xSwipe.pl -d 0.5`)
+*   `-m INTERVAL` :
+      *INTERVAL* is how often synclient monitor changes to the touchpad state.
+      Default value is 10(ms).
+      Set 50ms as monitoring-span. (e.g.,`$ perl xSwipe.pl -m 50`)
 *   `-n` :
       Natural scroll like Macbook, use "/nScroll/eventKey.cfg".
 
