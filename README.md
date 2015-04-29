@@ -25,6 +25,22 @@ Or run the script on the terminal run as
 
     $ sudo apt-get install libx11-guitest-perl
 
+---
+#### NOTE: If using Ubuntu14.04, or later
+##### Install older version synaptics driver that is compatible with xSwipe.
+
+```bash
+sudo apt-get install -y git build-essential libevdev-dev autoconf automake libmtdev-dev xorg-dev xutils-dev libtool
+sudo apt-get remove -y xserver-xorg-input-synaptics
+git clone https://github.com/felipejfc/xserver-xorg-input-synaptics.git
+cd xserver-xorg-input-synaptics
+./autogen.sh
+./configure --exec_prefix=/usr
+make
+sudo make install
+```
+---
+
 ### 3. Enable SHMConfig
 
 Open /etc/X11/xorg.conf.d/50-synaptics.conf with your favorite text editor and edit it to enable SHMConfig
