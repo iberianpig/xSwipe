@@ -108,6 +108,13 @@ my @data = <fileHundle>;
 my $sessionName = (split "session=", $data[0])[1];
 close(fileHundle);
 chomp($sessionName);
+# If $session_name is empty (gnome-session doesn't work), try to find it with $DESKTOP_SESSION
+if (not length $sessionName){
+    open (desktopSession, 'echo $DESKTOP_SESSION |')or die 'can\'t echo $DESKTOP_SESSION';
+    $sessionName = <desktopSession>;
+    close(desktopSession);
+    chomp($sessionName);
+}
 $sessionName = ("$sessionName" ~~ $conf) ? "$sessionName" : 'other';
 ### $sessionName
 
@@ -158,7 +165,6 @@ my @eventString = ("default");  # the event to execute
 my $currWind = GetInputFocus();
 die "couldn't get input window" unless $currWind;
 open(INFILE,"synclient -m $pollingInterval |") or die "can't read from synclient";
-
 while(my $line = <INFILE>){
     chomp($line);
     my($time, $x, $y, $z, $f, $w) = split " ", $line;
