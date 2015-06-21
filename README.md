@@ -30,14 +30,14 @@ Or run the script on the terminal run as
 ##### Install older version synaptics driver that is compatible with xSwipe.
 
 ```bash
-sudo apt-get install -y git build-essential libevdev-dev autoconf automake libmtdev-dev xorg-dev xutils-dev libtool
-sudo apt-get remove -y xserver-xorg-input-synaptics
-git clone https://github.com/Chosko/xserver-xorg-input-synaptics.git
-cd xserver-xorg-input-synaptics
-./autogen.sh
-./configure --exec_prefix=/usr
-make
-sudo make install
+$ sudo apt-get install -y git build-essential libevdev-dev autoconf automake libmtdev-dev xorg-dev xutils-dev libtool
+$ sudo apt-get remove -y xserver-xorg-input-synaptics
+$ git clone https://github.com/Chosko/xserver-xorg-input-synaptics.git
+$ cd xserver-xorg-input-synaptics
+$ ./autogen.sh
+$ ./configure --exec_prefix=/usr
+$ make
+$ sudo make install
 ```
 ---
 
