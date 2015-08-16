@@ -76,7 +76,7 @@ To run xSwipe, type below code on terminal.
 You can use "swipe" with 3 or 4 fingers, they can call an event.
 Additionally, some gestures are avilable.
 
-* *edge-swipe* : swipe with 2 fingers from outside edge.
+* *edge-swipe* : swipe with 2 fingers from outside edge(need to enable with option).
 * *long-press* : hold pressure for 0.5 seconds with 3 or 4 fingers.
 
 ### Option
@@ -90,6 +90,8 @@ Additionally, some gestures are avilable.
       Set 50ms as monitoring-span. (e.g.,`$ perl xSwipe.pl -m 50`)
 *   `-n` :
       Natural scroll like Macbook, use "/nScroll/eventKey.cfg".
+*   `-e`
+      Enable edge-swipe
 
 ## Customize
 You can customize the settings for gestues to edit eventKey.cfg.
