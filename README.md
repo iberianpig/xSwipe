@@ -90,7 +90,7 @@ Additionally, some gestures are avilable.
       Set 50ms as monitoring-span. (e.g.,`$ perl xSwipe.pl -m 50`)
 *   `-n` :
       Natural scroll like Macbook, use "/nScroll/eventKey.cfg".
-*   `-e`
+*   `-e` :
       Enable edge-swipe
 
 ## Customize
