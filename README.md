@@ -1,7 +1,11 @@
 xSwipe
 ======================
 xSwipe is multitouch gesture recognizer.
-This script make your linux PC able to recognize swipes like a Macbook.
+This script make your linux PC able to recognize swipes.
+
+**For libinput driver**  
+I released [Fusuma](https://github.com/iberianpig/fusuma), using libinput driver and pinch zoom suppport.  
+Try [Fusuma](https://github.com/iberianpig/fusuma) if your device cannot use older synaptics driver. (xSwipe depends on older version synaptics driver)
 
 ## Usage
 
