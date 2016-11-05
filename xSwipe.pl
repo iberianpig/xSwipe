@@ -12,7 +12,7 @@ use Time::HiRes();
 use X11::GUITest qw( :ALL );
 use FindBin;
 #debug
-use Smart::Comments;
+# use Smart::Comments;
 
 my $natural_scroll = 0;
 my $base_dist = 0.1;
