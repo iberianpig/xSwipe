@@ -3,7 +3,7 @@ xSwipe
 xSwipe is multitouch gesture recognizer.
 This script make your linux PC able to recognize swipes.
 
-** Ubuntu15.04, or later **  
+**Ubuntu15.04, or later**  
 I released [Fusuma](https://github.com/iberianpig/fusuma), it use libinput driver and suppport pinch zoom .  
 You should try [Fusuma](https://github.com/iberianpig/fusuma) instead of xSwipe if you use Ubuntu15.04, or later. 
 It need not depend on older version synaptics driver, and it works well with libinput driver supported by 15.04 or later as standard.
