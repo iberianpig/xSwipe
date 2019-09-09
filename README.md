@@ -79,7 +79,7 @@ To run xSwipe, type below code on terminal.
 **Note:You should run xSwipe.pl in same directory as "eventKey.cfg" .**
 
 You can use "swipe" with 3 or 4 fingers, they can call an event.
-Additionally, some gestures are avilable.
+Additionally, some gestures are available.
 
 * *edge-swipe* : swipe with 2 fingers from outside edge(need to enable with option).
 * *long-press* : hold pressure for 0.5 seconds with 3 or 4 fingers.
